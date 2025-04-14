@@ -1,7 +1,7 @@
 # File to store routes of flask app
 
 from flask import render_template
-from app import app  # 이 줄이 필요합니다
+from app import app 
 
 @app.route('/')
 def index():
