@@ -3,91 +3,113 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Registration Form </title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/register.css') }}">
+  <title>Registration Form</title>
+  <link rel="stylesheet" href="../static/css/register.css">
+
+  <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/register.css') }}"> -->
 </head>
 <body>
   <div class="container">
-    <!-- Title section -->
+    <!-- Title session -->
     <div class="title">Registration</div>
     <div class="content">
-      <!-- Registration form -->
+      <!-- Register form -->
       <form action="#">
         <div class="user-details">
-          <!-- Input for Full Name -->
+          <!-- Put the name -->
           <div class="input-box">
             <span class="details">Full Name</span>
             <input type="text" placeholder="Enter your name" required>
           </div>
-          <!-- Input for Username -->
+          <!-- Username -->
           <div class="input-box">
             <span class="details">Username</span>
             <input type="text" placeholder="Enter your username" required>
           </div>
-          <!-- Input for Email -->
+          <!-- Email -->
           <div class="input-box">
             <span class="details">Email</span>
             <input type="text" placeholder="Enter your email" required>
           </div>
-          <!-- Input for Phone Number -->
+          <!-- Phone number -->
           <div class="input-box">
             <span class="details">Phone Number</span>
             <input type="text" placeholder="Enter your number" required>
           </div>
-
+          <!-- Country label -->
           <div class="input-box">
             <span class="details">Country/Location</span>
             <input type="text" placeholder="Enter your Location" required>
           </div>
-
+          <!-- Occupation dropdown -->
           <div class="input-box">
-            <span class="details">Date of Birth</span>
-            <input type="date" required>
+            <span class="details">Select occupation</span>
+            <select name="occupation" id="occupation-select" required>
+              <option value="" selected disabled>Select your occupation</option>
+              <option value="student">Student</option>
+              <option value="technology">Technology & IT</option>
+              <option value="healthcare">Healthcare</option>
+              <option value="business">Business & Finance</option>
+              <option value="education">Education</option>
+              <option value="arts">Arts & Creative</option>
+              <option value="service">Service Industry</option>
+              <option value="science">Science & Research</option>
+              <option value="trades">Trades & Manual Labor</option>
+              <option value="other">Other</option>
+            </select>
           </div>
-
-
-
-          <!-- Input for Password -->
+          <!-- Put the password -->
           <div class="input-box">
             <span class="details">Password</span>
-            <input type="text" placeholder="Enter your password" required>
+            <input type="password" placeholder="Enter your password" required>
           </div>
-          <!-- Input for Confirm Password -->
+          <!-- Check password -->
           <div class="input-box">
             <span class="details">Confirm Password</span>
-            <input type="text" placeholder="Confirm your password" required>
+            <input type="password" placeholder="Confirm your password" required>
           </div>
         </div>
         <div class="gender-details">
-          <!-- Radio buttons for gender selection -->
+          <!-- Choose Gender-->
           <input type="radio" name="gender" id="dot-1">
           <input type="radio" name="gender" id="dot-2">
           <input type="radio" name="gender" id="dot-3">
           <span class="gender-title">Gender</span>
           <div class="category">
-            <!-- Label for Male -->
+            <!-- Male gender label -->
             <label for="dot-1">
               <span class="dot one"></span>
               <span class="gender">Male</span>
             </label>
-            <!-- Label for Female -->
+            <!-- Femail gender label -->
             <label for="dot-2">
               <span class="dot two"></span>
               <span class="gender">Female</span>
             </label>
-            <!-- Label for Prefer not to say -->
+            <!-- Private label -->
             <label for="dot-3">
               <span class="dot three"></span>
               <span class="gender">Prefer not to say</span>
             </label>
           </div>
         </div>
-        <!-- Submit button -->
+        <!-- Submit button-->
         <div class="button">
           <input type="submit" value="Register">
         </div>
       </form>
     </div>
   </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // 직업 드롭다운 요소
+      const occupationSelect = document.getElementById('occupation-select');
+      
+      occupationSelect.addEventListener('change', function() {
+        console.log('Selected occupation category:', this.value);
+      });
+    });
+  </script>
 </body>
 </html>
