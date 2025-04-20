@@ -14,7 +14,7 @@
     <div class="title">Registration</div>
     <div class="content">
       <!-- Register form -->
-      <form action="#">
+      <form action="/register" method="POST">
         <div class="user-details">
           <!-- Put the name -->
           <div class="input-box">
@@ -103,7 +103,6 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      // 직업 드롭다운 요소
       const occupationSelect = document.getElementById('occupation-select');
       
       occupationSelect.addEventListener('change', function() {

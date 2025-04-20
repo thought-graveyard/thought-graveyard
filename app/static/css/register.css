@@ -12,7 +12,7 @@ body {
   justify-content: center;
   align-items: center;
   padding: 10px;
-  background: linear-gradient(135deg, #71b7e6, #9b59b6);
+  background: linear-gradient(135deg, #1f2833, #0b0c10);
 }
 .container {
   max-width: 700px;
@@ -20,7 +20,7 @@ body {
   background-color: #fff;
   padding: 25px 30px;
   border-radius: 5px;
-  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.14);
 }
 .container .title {
   font-size: 25px;
@@ -35,7 +35,7 @@ body {
   height: 3px;
   width: 30px;
   border-radius: 5px;
-  background: linear-gradient(135deg, #71b7e6, #9b59b6);
+  background: linear-gradient(135deg, #054555, #9b59b6);
 }
 .content form .user-details {
   display: flex;
@@ -138,10 +138,10 @@ form .button input {
   letter-spacing: 1px;
   cursor: pointer;
   transition: all 0.3s ease;
-  background: linear-gradient(135deg, #71b7e6, #9b59b6);
+  background: linear-gradient(-135deg, #2c3e50, #4a235a);
 }
 form .button input:hover {
-  background: linear-gradient(-135deg, #71b7e6, #9b59b6);
+  background: linear-gradient(-135deg, #2f3640, #1e272e);
 }
 /* Responsive media query code for mobile devices */
 @media(max-width: 584px) {
