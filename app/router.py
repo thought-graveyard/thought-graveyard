@@ -1,9 +1,13 @@
 from flask import render_template, redirect, request
 from app import app
 
+@app.route('/welcome')
+def landing():
+    return render_template('landing_page.html')
+
 @app.route('/')
-def index():
-    return redirect('/register')
+def main():
+    return render_template('main_page.html')
 
 @app.route('/login')
 def login():
