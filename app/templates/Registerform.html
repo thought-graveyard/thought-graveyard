@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registration Form</title>
+  <link rel="stylesheet" href="../static/css/register.css">
+
+  <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/register.css') }}"> -->
+</head>
+<body>
+  <div class="container">
+    <!-- Title session -->
+    <div class="title">Registration</div>
+    <div class="content">
+      <!-- Register form -->
+      <form action="/register" method="POST">
+        <div class="user-details">
+          <!-- Put the name -->
+          <div class="input-box">
+            <span class="details">Full Name</span>
+            <input type="text" placeholder="Enter your name" required>
+          </div>
+          <!-- Username -->
+          <div class="input-box">
+            <span class="details">Username</span>
+            <input type="text" placeholder="Enter your username" required>
+          </div>
+          <!-- Email -->
+          <div class="input-box">
+            <span class="details">Email</span>
+            <input type="text" placeholder="Enter your email" required>
+          </div>
+          <!-- Phone number -->
+          <div class="input-box">
+            <span class="details">Phone Number</span>
+            <input type="text" placeholder="Enter your number" required>
+          </div>
+          <!-- Country label -->
+          <div class="input-box">
+            <span class="details">Country/Location</span>
+            <input type="text" placeholder="Enter your Location" required>
+          </div>
+          <!-- Occupation dropdown -->
+          <div class="input-box">
+            <span class="details">Select occupation</span>
+            <select name="occupation" id="occupation-select" required>
+              <option value="" selected disabled>Select your occupation</option>
+              <option value="student">Student</option>
+              <option value="technology">Technology & IT</option>
+              <option value="healthcare">Healthcare</option>
+              <option value="business">Business & Finance</option>
+              <option value="education">Education</option>
+              <option value="arts">Arts & Creative</option>
+              <option value="service">Service Industry</option>
+              <option value="science">Science & Research</option>
+              <option value="trades">Trades & Manual Labor</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <!-- Put the password -->
+          <div class="input-box">
+            <span class="details">Password</span>
+            <input type="password" placeholder="Enter your password" required>
+          </div>
+          <!-- Check password -->
+          <div class="input-box">
+            <span class="details">Confirm Password</span>
+            <input type="password" placeholder="Confirm your password" required>
+          </div>
+        </div>
+        <div class="gender-details">
+          <!-- Choose Gender-->
+          <input type="radio" name="gender" id="dot-1">
+          <input type="radio" name="gender" id="dot-2">
+          <input type="radio" name="gender" id="dot-3">
+          <span class="gender-title">Gender</span>
+          <div class="category">
+            <!-- Male gender label -->
+            <label for="dot-1">
+              <span class="dot one"></span>
+              <span class="gender">Male</span>
+            </label>
+            <!-- Femail gender label -->
+            <label for="dot-2">
+              <span class="dot two"></span>
+              <span class="gender">Female</span>
+            </label>
+            <!-- Private label -->
+            <label for="dot-3">
+              <span class="dot three"></span>
+              <span class="gender">Prefer not to say</span>
+            </label>
+          </div>
+        </div>
+        <!-- Submit button-->
+        <div class="button">
+          <input type="submit" value="Register">
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const occupationSelect = document.getElementById('occupation-select');
+      
+      occupationSelect.addEventListener('change', function() {
+        console.log('Selected occupation category:', this.value);
+      });
+    });
+  </script>
+</body>
+</html>
