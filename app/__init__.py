@@ -1,8 +1,9 @@
-# Entry point of flask app
 
 from flask import Flask
 
-app = Flask(__name__)
+app = Flask(__name__, 
+            static_folder='static',  # static folder
+            static_url_path='/static')  # URL Path
 
 from app import router
 
