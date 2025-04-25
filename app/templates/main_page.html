@@ -7,9 +7,6 @@
 
     <!-- Import main stylesheet -->
     <link rel="stylesheet" href="../static/css/main.css">
-
-    <!-- Link JS canvas -->
-    <script defer src="../static/scripts/canvas.js"></script>
 </head>
 <body>
     <div class="main" id="main">
@@ -17,5 +14,18 @@
 
         </div>    
     </div>
+
+    <!-- Link JS canvas -->
+    <script>
+        const tombstoneData = [{
+            id: 1234567,
+            content: "Hello world, how are you?",
+            type: 0,
+            pos: [100, 100],
+            likes: 0
+        }]
+    </script>
+
+    <script defer src="../static/scripts/canvas.js"></script>
 </body>
 </html>

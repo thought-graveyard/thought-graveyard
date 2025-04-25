@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thoughts of Graveyard - Login</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Arial', sans-serif;
+    }
+    
+    body {
+      background-color: #b91c1c1a;
+      color: #ccc;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Cdefs%3E%3CradialGradient id='a' cx='50%25' cy='40%25' r='50%25' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0' stop-color='%23323232'/%3E%3Cstop offset='1' stop-color='%23111111'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23a)'/%3E%3C/svg%3E");
+      background-attachment: fixed;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    /* Fog effect */
+    body:before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Cdefs%3E%3ClinearGradient id='a' x1='0' y1='0' x2='0' y2='100%25' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0' stop-color='%23ffffff' stop-opacity='0.05'/%3E%3Cstop offset='0.5' stop-color='%23ffffff' stop-opacity='0.02'/%3E%3Cstop offset='1' stop-color='%23ffffff' stop-opacity='0.05'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23a)'/%3E%3C/svg%3E");
+      opacity: 0.5;
+      z-index: 1;
+      pointer-events: none;
+      animation: fog 20s infinite alternate ease-in-out;
+    }
+
+    @keyframes fog {
+      0% {
+        transform: translateX(-5%) translateY(-5%);
+      }
+      100% {
+        transform: translateX(5%) translateY(5%);
+      }
+    }
+    
+    .login-container {
+      background-color: rgba(20, 20, 20, 0.85);
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 30px;
+      width: 90%;
+      max-width: 400px;
+      position: relative;
+      z-index: 2;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+    }
+    .login-image {
+    width: 300px; 
+    display: block;
+    margin: 0 auto 20px;
+    }
+    
+    h1 {
+      color: #ccc;
+      text-align: center;
+      margin-bottom: 25px;
+      font-size: 24px;
+      text-shadow: 0 0 5px rgba(200, 200, 200, 0.3);
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #aaa;
+      font-size: 14px;
+    }
+    
+    input {
+      width: 100%;
+      padding: 12px;
+      background-color: #222;
+      border: 1px solid #444;
+      color: #ddd;
+      border-radius: 4px;
+      font-size: 16px;
+      transition: all 0.3s;
+    }
+    
+    input:focus {
+      outline: none;
+      border-color: #666;
+      box-shadow: 0 0 10px rgba(80, 80, 80, 0.5);
+    }
+    
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #444;
+      color: #ddd;
+      border: none;
+      border-radius: 4px;
+      font-size: 20px;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 10px;
+    }
+    
+    button:hover {
+      background-color: #555;
+    }
+    
+    .forgot {
+      display: block;
+      text-align: right;
+      margin-bottom: 20px;
+      color: #777;
+      font-size: 14px;
+      text-decoration: none;
+    }
+    
+    .forgot:hover {
+      color: #999;
+    }
+    
+    .social-login {
+      display: flex;
+      justify-content: space-between;
+      margin: 25px 0 15px;
+    }
+    
+    .social-btn {
+      flex: 1;
+      padding: 10px;
+      margin: 0 5px;
+      text-align: center;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 20px;
+    }
+
+    
+    .google {
+      background-color: #db4437;
+      color: white;
+    }
+    
+    .graves {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      height: 70px;
+      background-color: #222;
+      z-index: 0;
+    }
+    
+    .grave {
+      position: absolute;
+      bottom: 0;
+      width: 30px;
+      height: 50px;
+      background-color: #444;
+      border-radius: 15px 15px 0 0;
+    }
+    
+    .signup-text {
+      text-align: center;
+      margin-top: 20px;
+      color: #777;
+      font-size: 14px;
+    }
+    
+    .signup-link {
+      color: #999;
+      text-decoration: none;
+    }
+    
+    .signup-link:hover {
+      text-decoration: underline;
+    }
+    
+    /* Create multiple gravestones in the background */
+    .grave:nth-child(1) { left: 5%; height: 60px; }
+    .grave:nth-child(2) { left: 15%; height: 45px; }
+    .grave:nth-child(3) { left: 25%; height: 50px; }
+    .grave:nth-child(4) { left: 40%; height: 55px; }
+    .grave:nth-child(5) { left: 55%; height: 40px; }
+    .grave:nth-child(6) { left: 70%; height: 65px; }
+    .grave:nth-child(7) { left: 85%; height: 50px; }
+    .grave:nth-child(8) { left: 95%; height: 40px; }
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <div class="graves">
+    <div class="grave"></div>
+    <div class="grave"></div>
+    <div class="grave"></div>
+    <div class="grave"></div>
+    <div class="grave"></div>
+    <div class="grave"></div>
+    <div class="grave"></div>
+    <div class="grave"></div>
+  </div>
+  
+  <div class="login-container">
+    <img src="../static/login_tombstone_picture/login_tombstone.png" alt="Tombstone" class="login-image">
+    <h1>Sign In With</h1>
+    
+    <div class="social-login">
+        <div class="social-btn google">
+          <i class="fab fa-google"></i>
+        </div>
+      </div>
+    
+    <form>
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username">
+      </div>
+      
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password">
+        <a href="#" class="forgot">Forgot?</a>
+      </div>
+      
+      <button type="submit">Sign In</button>
+    </form>
+    
+    <div class="signup-text">
+      Not a member? <a href="/register" class="signup-link">Sign up now</a>
+    </div>
+  </div>
+</body>
+</html>
