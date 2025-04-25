@@ -17,11 +17,44 @@
 
     <!-- Link JS canvas -->
     <script>
+        function displayTombstone(id) {
+            let tombstone;
+
+            tombstoneData.forEach(stone => {
+                if (stone.id == id) {
+                    tombstone = stone;
+                }
+            });
+
+            alert(tombstone.content);
+        }
+
         const tombstoneData = [{
             id: 1234567,
-            content: "Hello world, how are you?",
+            content: "Hello, how are you?",
             type: 0,
-            pos: [100, 100],
+            pos: [300, 100],
+            likes: 0
+        },
+        {
+            id: 1234568,
+            content: "Hola, como estas?",
+            type: 1,
+            pos: [500, 100],
+            likes: 0
+        },
+        {
+            id: 1234569,
+            content: "Konnichiwa. Genki desu ka?",
+            type: 2,
+            pos: [700, 100],
+            likes: 0
+        },
+        {
+            id: 1234560,
+            content: "Bonjour, comment ça va?",
+            type: 3,
+            pos: [900, 100],
             likes: 0
         }]
     </script>
