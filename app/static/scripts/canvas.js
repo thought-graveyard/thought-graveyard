@@ -1,8 +1,8 @@
 // Define canvas and state
 let canvas = document.createElement("canvas");
 let context = canvas.getContext("2d");
-canvas.width = document.body.clientWidth;
-canvas.height = document.body.clientHeight;
+canvas.width = document.body.clientWidth * 0.8;
+canvas.height = document.body.clientHeight * 0.8;
 
 // Add canvas to document
 document.getElementById("main").appendChild(canvas);
@@ -66,6 +66,7 @@ class Sprite {
     constructor(urls, speed, dir, x, y) {
         this.urls = urls;
         this.speed = speed;
+        this.intersect = null;
 
         this.frames = urls[0].length;
         this.index = 0;
@@ -92,6 +93,8 @@ class Sprite {
         this.dir = dir;
 
         this.animate(dt);
+
+        this.calculateIntersection();
 
         if (this.dir == "b")  {
             let pos = this.y - (speed * dt);
@@ -126,6 +129,31 @@ class Sprite {
                 tombstones.update(shift);    
             }
         } 
+    }
+
+    calculateIntersection() {
+        let intersection = false;
+        tombstones.locs.forEach(location => {
+            if (this.x >= location[0] - 48 && this.x <= location[0] + 48 && this.y >= location[1] - 48 && this.y <= location[1] + 48) {
+                intersection = true;
+                let index = tombstones.locs.indexOf(location);
+                this.intersect = tombstones.inFrame[index].id;
+            }
+        });
+
+        if (!intersection) {
+            this.intersect = null;
+        }
+    }
+
+    getIntersection() {
+        return this.intersect;
+    }
+
+    readTombstone() {
+        if (this.intersect != null) {
+            displayTombstone(this.intersect);
+        }
     }
 
     animate(dt) {
@@ -198,32 +226,36 @@ class Input {
 
 class Tombstones {
     constructor(tombstones) {
+        this.reconstruct(tombstones);
+    }
+
+    reconstruct(tombstones) {
         this.tombstones = tombstones;
         this.inFrame = [];
         this.shift = shift;
+        this.locs = []
 
         this.tombstones.forEach(tombstone => {
             tombstone["src"] = images.get(`../static/assets/tombstones/${tombstone.type}.png`);
 
-            if (tombstone["pos"][0] - this.shift[0] >= 0 && tombstone["pos"][0] - this.shift[0] <= canvas.width) {
-                if (tombstone["pos"][1] - this.shift[1] >= 0 && tombstone["pos"][1] - this.shift[1] <= canvas.height) {
+            if (tombstone["pos"][0] - this.shift[0] >= -32 && tombstone["pos"][0] - this.shift[0] <= canvas.width) {
+                if (tombstone["pos"][1] - this.shift[1] >= -32 && tombstone["pos"][1] - this.shift[1] <= canvas.height) {
+                    this.locs.push(tombstone.pos);
                     this.inFrame.push(tombstone);
                 }
             }
         });
     }
 
-    reconstruct(tombstones) {
-        this(tombstones);
-    }
-
     update(shift) {
         this.shift = shift;
         this.inFrame = [];
+        this.locs = []
 
         this.tombstones.forEach(tombstone => {
-            if (tombstone["pos"][0] - this.shift[0] >= 0 && tombstone["pos"][0] - this.shift[0] <= canvas.width) {
-                if (tombstone["pos"][1] - this.shift[1] >= 0 && tombstone["pos"][1] - this.shift[1] <= canvas.height) {
+            if (tombstone["pos"][0] - this.shift[0] >= -32 && tombstone["pos"][0] - this.shift[0] <= canvas.width) {
+                if (tombstone["pos"][1] - this.shift[1] >= -32 && tombstone["pos"][1] - this.shift[1] <= canvas.height) {
+                    this.locs.push([tombstone["pos"][0] - this.shift[0], tombstone["pos"][1] - this.shift[1]]);
                     this.inFrame.push(tombstone);
                 }
             }
@@ -232,7 +264,14 @@ class Tombstones {
 
     render(context) {
         this.inFrame.forEach(tombstone => {
+            context.save();
+
+            if (tombstone.id == character.getIntersection()) {
+                context.filter = "brightness(1.5)";
+            }
+
             context.drawImage(tombstone.src, tombstone["pos"][0] - this.shift[0], tombstone["pos"][1] - this.shift[1], 64, 64);
+            context.restore();
         });
     }
 }
@@ -257,8 +296,7 @@ function handleInput(dt, speed) {
     }
 
     if(input.getStatus("SPACE") == "pressed") {
-        space = space == "global" ? "local" : "global";
-        changeSpace();
+        character.readTombstone();
     }
 }
 
@@ -267,7 +305,7 @@ function changeSpace() {
     tombstones = new Tombstones(tombstoneData);
 
     if (space == "local") {
-        terrainPattern = context.createPattern(images.get(["../static/assets/wood.png"]), "repeat");
+        terrainPattern = context.createPattern(images.get(["../static/assets/sand.png"]), "repeat");
     } else if (space == "global") {
         terrainPattern = context.createPattern(images.get(["../static/assets/grass.png"]), "repeat");
     }
@@ -283,8 +321,12 @@ function update(dt, speed) {
 // Render all assets and sprites
 function render() {
     context.fillStyle = terrainPattern;
-    
-    context.fillRect((shift[0] % 32) - 32, (shift[1] % 32) - 32, canvas.width + 64, canvas.height + 64);
+
+    // Shift world pattern to make it more realistic
+    context.save();
+    context.translate(-((shift[0] % 32) - 32), -((shift[1] % 32) - 32));
+    context.fillRect((shift[0] % 32) - 32, (shift[1] % 32) - 32, canvas.width, canvas.height);
+    context.restore();
     
     tombstones.render(context);
     character.render(context);
@@ -331,11 +373,11 @@ function init() {
             images.get("../static/assets/character/right/r2.png"),
             images.get("../static/assets/character/right/r3.png")
         ]
-    ], 10, "f", 0, 0);
+    ], 10, "f", canvas.width / 2 - 32, canvas.height / 2 - 32);
 
     tombstones = new Tombstones(tombstoneData);
 
-    terrainPattern = context.createPattern(images.get(["../static/assets/wood.png"]), "repeat");
+    terrainPattern = context.createPattern(images.get(["../static/assets/sand.png"]), "repeat");
 
     prevTime = Date.now();
     main();
@@ -353,7 +395,7 @@ let input = new Input();
 
 let images = new Resources([
     "../static/assets/grass.png",
-    "../static/assets/wood.png",
+    "../static/assets/sand.png",
     "../static/assets/character/back/b0.png",
     "../static/assets/character/back/b1.png",
     "../static/assets/character/back/b2.png",
@@ -370,7 +412,10 @@ let images = new Resources([
     "../static/assets/character/right/r1.png",
     "../static/assets/character/right/r2.png",
     "../static/assets/character/right/r3.png",
-    "../static/assets/tombstones/0.png"
+    "../static/assets/tombstones/0.png",
+    "../static/assets/tombstones/1.png",
+    "../static/assets/tombstones/2.png",
+    "../static/assets/tombstones/3.png"
 ]);
 
 images.onReady(init);
