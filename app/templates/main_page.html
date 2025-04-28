@@ -5,13 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Thought Graveyard</title>
 
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jersey+10&display=swap" rel="stylesheet">
+
     <!-- Import main stylesheet -->
     <link rel="stylesheet" href="../static/css/main.css">
 </head>
 <body>
-    <div class="main" id="main">
-        <div class="sidebar">
-
+    <div class="main game-screen" id="main">
+        <div style="font-family: 'Jersey 10';" class="col sidebar">
+            <h2>Thought Graveyard</h2>
         </div>    
     </div>
 
@@ -26,10 +31,23 @@
                 }
             });
 
+            // Below should be be changed by @kaylee when implementing the tombstone creation
             alert(tombstone.content);
         }
 
-        const tombstoneData = [{
+        function addTombstone(content, type) {
+            // Add tombstone method to be called by canvas
+        }
+
+        function loadLocalSpace() {
+            // Load only local thoughts
+        }
+
+        function loadGlobalSpace() {
+            // Load all thoughts
+        }
+
+        let tombstoneData = [{
             id: 1234567,
             content: "Hello, how are you?",
             type: 0,
@@ -55,6 +73,20 @@
             content: "Bonjour, comment ça va?",
             type: 3,
             pos: [900, 100],
+            likes: 0
+        },
+        {
+            id: 1234570,
+            content: "Yo bro. How's life?",
+            type: 4,
+            pos: [300, 200],
+            likes: 0
+        },
+        {
+            id: 1234571,
+            content: "Wahgwan? Mi deh yah!",
+            type: 5,
+            pos: [500, 200],
             likes: 0
         }]
     </script>
