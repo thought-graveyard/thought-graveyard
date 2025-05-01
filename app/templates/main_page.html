@@ -14,13 +14,57 @@
     <link rel="stylesheet" href="../static/css/main.css">
 </head>
 <body>
+    <!-- Tombstone content modal to be populated by current tombstone data -->
+    <div class="popup hidden" id="tombstone-content">
+        <div class="card" onclick="hideTombstone()">
+            <h2 id="tombstone-text"></h2>
+            <h2 id="tombstone-likes"></h2>
+        </div>
+    </div>
+
+    <!-- Tombstone creation modal to add data to database -->
+    <div class="popup hidden" id="tombstone-creation">
+        <div class="card">
+            <h2>Nothing here yet</h2>
+        </div>
+    </div>
+
     <div class="main game-screen" id="main">
-        <div style="font-family: 'Jersey 10';" class="col sidebar">
+        <div class="col sidebar">
             <h2>Thought Graveyard</h2>
+            <h3>Search</h3>
+            <input type="text">
         </div>    
     </div>
 
-    <!-- Link JS canvas -->
+    <style>
+        .popup {
+            background-color: rgba(0, 0, 0, 0.4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: fixed;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .card {
+            background-color: #fff;
+            width: min(800px, 100%);
+            margin: 12px;
+            text-align: center;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: "Jersey 10", monospace;
+        }
+    </style>
+
+    <!-- DOM and Flask scripts -->
     <script>
         function displayTombstone(id) {
             let tombstone;
@@ -31,12 +75,22 @@
                 }
             });
 
-            // Below should be be changed by @kaylee when implementing the tombstone creation
-            alert(tombstone.content);
+            document.getElementById("tombstone-text").textContent = tombstone.content;
+            document.getElementById("tombstone-likes").textContent = `${tombstone.likes} likes`;
+            document.getElementById("tombstone-content").classList.remove("hidden");
+        }
+
+        function hideTombstone() {
+            document.getElementById("tombstone-content").classList.add("hidden");
+        }
+
+        function showTombstoneCreator() {
+            document.getElementById("tombstone-content").classList.remove("hidden");
         }
 
         function addTombstone(content, type) {
             // Add tombstone method to be called by canvas
+            document.getElementById("tombstone-content").classList.add("hidden");
         }
 
         function loadLocalSpace() {
@@ -45,6 +99,10 @@
 
         function loadGlobalSpace() {
             // Load all thoughts
+        }
+
+        function loadStatsSpace() {
+            tombstoneData = [];
         }
 
         let tombstoneData = [{
@@ -63,7 +121,7 @@
         },
         {
             id: 1234569,
-            content: "Konnichiwa. Genki desu ka?",
+            content: "Good day!",
             type: 2,
             pos: [700, 100],
             likes: 0
@@ -91,6 +149,7 @@
         }]
     </script>
 
+    <!-- Canvas scripts -->
     <script defer src="../static/scripts/canvas.js"></script>
 </body>
 </html>
