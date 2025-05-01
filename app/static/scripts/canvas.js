@@ -2,8 +2,15 @@
 let canvas = document.createElement("canvas");
 let context = canvas.getContext("2d");
 canvas.classList.add("col");
+
 canvas.width = document.body.clientWidth * 0.8 * 0.9;
 canvas.height = document.body.clientHeight * 0.8;
+
+document.body.onresize = () => {
+    canvas.width = document.body.clientWidth * 0.8 * 0.9;
+    canvas.height = document.body.clientHeight * 0.8;
+};
+
 
 // Add canvas to document
 document.getElementById("main").appendChild(canvas);
@@ -96,11 +103,44 @@ class Sprite {
         }
     }
 
+    // Handles keyboard input
+    handleInput(dt, speed) {
+        if (input.getStatus("DOWN") == "down") {
+            this.move("f", speed, dt);
+        }
+
+        if (input.getStatus("UP") == "down") {
+            this.move("b", speed, dt);
+        }
+
+        if (input.getStatus("LEFT") == "down") {
+            this.move("l", speed, dt);
+        }
+
+        if (input.getStatus("RIGHT") == "down") {
+            this.move("r", speed, dt);
+        }
+
+        if (input.getStatus("SPACE") == "pressed") {
+            if (this.intersect != null) {
+                if (this.intersect.toString().slice(0, 4) != "door") {
+                    this.readTombstone();
+                } else {
+                    doors.some(door => {
+                        if (door.location == this.intersect.slice(5)) {
+                            door.changeSpace();
+                            return true;
+                        }
+                    });
+                }    
+            }
+        }
+    }
+
     move(dir, speed, dt) {
         this.dir = dir;
 
         this.animate(dt);
-
         this.calculateIntersection();
 
         if (this.dir == "b")  {
@@ -148,10 +188,12 @@ class Sprite {
             }
         });
 
-        if (this.x >= door.x - 48 && this.x <= door.x + 48 && this.y >= door.y - 48 && this.y <= door.y + 48) {
-            intersection = true;
-            this.intersect = "door";
-        }
+        doors.forEach(door => {
+            if (this.x >= door.x - 48 && this.x <= door.x + 48 && this.y >= door.y - 48 && this.y <= door.y + 48 && space == door.space) {
+                intersection = true;
+                this.intersect = `door_${door.location}`;
+            }
+        });
 
         if (!intersection) {
             this.intersect = null;
@@ -290,85 +332,61 @@ class Tombstones {
 
 
 class Door {
-    constructor() {
-        this.x = canvas.width - 64;
-        this.y = canvas.height / 2 - 32;
-        this.src = images.get("../static/assets/door.png");
+    constructor(x, y, location, visibleSpace) {
+        this.x = x;
+        this.y = y;
+        this.location = location;
+        this.space = visibleSpace;
+        this.src = images.get(`../static/assets/doors/${this.location}_door.png`);
     }
 
     changeSpace() {
-        if (space == "local") {
-            space = "global";
-            spaceTitle = "Community Graveyard";
-            this.x = 0;
+        if (this.location == "local") {
+            loadLocalSpace();
+        } else if (this.location == "global") {
+            loadGlobalSpace();
         } else {
-            space = "local";
-            spaceTitle = "Local Thoughts";
-            this.x = canvas.width - 64;
+            loadStatsSpace();
         }
 
-        changeSpace();
+        tombstones = new Tombstones(tombstoneData);
+
+        space = this.location;
+        spaceTitle = this.location == "local" ? "Local Thoughts" : this.location == "global" ? "Community Graveyard" : "Global Statistics";
+        terrainPattern = context.createPattern(images.get([`../static/assets/setting/${this.location}.png`]), "repeat");
+
+        character.resetPosition(canvas.width / 2 - 32, canvas.height / 2 - 32, "f");
+        character.calculateIntersection();
     }
 
     render(context) {
-        context.save();
+        if (space == this.space) {
+            context.save();
 
-        if (character.getIntersection() == "door") {
-            context.filter = "brightness(1.5)";
+            if (character.getIntersection() == `door_${this.location}`) {
+                context.filter = "brightness(1.5)";
+            }
+
+            context.drawImage(this.src, this.x, this.y, 64, 64);
+
+            let text = this.location.charAt(0).toUpperCase() + this.location.slice(1);
+            context.font = "12pt \"Jersey 10\"";
+            context.textAlign = "center";
+            context.fillStyle = "white";
+
+            context.fillRect(this.x + 12, this.y - 13, 40, parseInt(context.font, 10));
+            context.fillStyle = "black";
+            context.fillText(text, this.x + 32, this.y);
+
+            context.restore();
         }
-
-        context.drawImage(this.src, this.x, this.y, 64, 64);
-        context.restore();
     }
-}
-
-
-// Calls correct functions given input direction
-function handleInput(dt, speed) {
-    if (input.getStatus("DOWN") == "down") {
-        character.move("f", speed, dt);
-    }
-
-    if (input.getStatus("UP") == "down") {
-        character.move("b", speed, dt);
-    }
-
-    if (input.getStatus("LEFT") == "down") {
-        character.move("l", speed, dt);
-    }
-
-    if (input.getStatus("RIGHT") == "down") {
-        character.move("r", speed, dt);
-    }
-
-    if (input.getStatus("SPACE") == "pressed") {
-        if (character.intersect != "door") {
-            character.readTombstone();
-        } else {
-            door.changeSpace();
-        }
-        
-    }
-}
-
-
-function changeSpace() {
-    tombstones = new Tombstones(tombstoneData);
-
-    if (space == "local") {
-        terrainPattern = context.createPattern(images.get(["../static/assets/sand.png"]), "repeat");
-    } else if (space == "global") {
-        terrainPattern = context.createPattern(images.get(["../static/assets/grass.png"]), "repeat");
-    }
-
-    character.resetPosition(canvas.width / 2 - 32, canvas.height / 2 - 32, "f");
-    character.calculateIntersection();
 }
 
 
 // Handle updates
 function update(dt, speed) {
-    handleInput(dt, speed);
+    character.handleInput(dt, speed);
 }
 
 
@@ -383,8 +401,12 @@ function render() {
     context.restore();
     
     tombstones.render(context);
-    door.render(context);
+    doors.forEach(door => {
+        door.render(context);
+    });
+    
 
+    // Set font, render and calculate size of white box behind text
     context.font = "20pt \"Jersey 10\"";
     context.textAlign = "center";
     context.fillStyle = "white";
@@ -444,9 +466,19 @@ function init() {
 
     shift = [0, 0];
     tombstones = new Tombstones(tombstoneData);
-    door = new Door();
+    doors = [
+        // Doors in local space
+        new Door(canvas.width - 64, canvas.height / 2 - 32, "global", "local"),
+        new Door(0, canvas.height / 2 - 32, "stats", "local"),
+        // Doors in global space
+        new Door(0, canvas.height / 2 + 16, "local", "global"),
+        new Door(0, canvas.height / 2 - 80, "stats", "global"),
+        // Doors in stats space
+        new Door(canvas.width - 64, canvas.height / 2 + 16, "local", "stats"),
+        new Door(canvas.width - 64, canvas.height / 2 - 80, "global", "stats"),
+    ];
 
-    terrainPattern = context.createPattern(images.get(["../static/assets/sand.png"]), "repeat");
+    terrainPattern = context.createPattern(images.get(["../static/assets/setting/local.png"]), "repeat");
 
     prevTime = Date.now();
     main();
@@ -456,7 +488,7 @@ function init() {
 let terrainPattern;
 let prevTime;
 let character;
-let door;
+let doors;
 let tombstones;
 let spaceTitle;
 let space;
@@ -465,8 +497,9 @@ let characterSpeed = 300;
 let input = new Input();
 
 let images = new Resources([
-    "../static/assets/grass.png",
-    "../static/assets/sand.png",
+    "../static/assets/setting/global.png",
+    "../static/assets/setting/local.png",
+    "../static/assets/setting/stats.png",
     "../static/assets/character/back/b0.png",
     "../static/assets/character/back/b1.png",
     "../static/assets/character/back/b2.png",
@@ -489,7 +522,9 @@ let images = new Resources([
     "../static/assets/tombstones/3.png",
     "../static/assets/tombstones/4.png",
     "../static/assets/tombstones/5.png",
-    "../static/assets/door.png"
+    "../static/assets/doors/global_door.png",
+    "../static/assets/doors/local_door.png",
+    "../static/assets/doors/stats_door.png"
 ]);
 
 images.onReady(init);
