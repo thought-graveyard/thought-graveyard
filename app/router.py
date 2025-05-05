@@ -1,7 +1,10 @@
 #import functions from flask   
-from flask import render_template, redirect, request, session,url_for,flash
+from flask import render_template, redirect, request, session,url_for,flash, jsonify
+from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 from app import app, db
-from app.models import User
+from app.models import User, Thought
+import random
 
 @app.route('/welcome')
 def landing():
@@ -67,3 +70,48 @@ def logout():
     session.pop('user_id',None)
     session.pop('username',None)
     return redirect('/welcome')
+
+@app.route('/public')
+def public():
+    return render_template('graveyard.html')
+
+@app.route('/personal')
+def personal():
+    return render_template('graveyard.html')
+
+@app.route('/api/public-thoughts')
+def public_thoughts():
+    thoughts = Thought.query.filter_by(is_public=True).all()
+    return jsonify([t.to_dict() for t in thoughts])
+
+@app.route('/api/personal-thoughts')
+def personal_thoughts():
+    thoughts = Thought.query.filter_by(is_public=False, author="me").all()
+    return jsonify([t.to_dict() for t in thoughts])
+
+@app.route('/api/thoughts', methods=['POST'])
+def add_thought():
+    data = request.json
+    new_thought = Thought(
+        title=data['title'],
+        content=data['content'],
+        emotions=data.get('emotions', []),
+        is_public=data.get('is_public', False),
+        author="me",
+        position={
+            "top": f"{random.randint(5, 85)}%",
+            "left": f"{random.randint(5, 85)}%"
+        }
+    )
+    db.session.add(new_thought)
+    db.session.commit()
+    return jsonify(new_thought.to_dict()), 201
+
+@app.route('/api/thoughts/<int:thought_id>', methods=['DELETE'])
+def delete_thought(thought_id):
+    thought = Thought.query.get(thought_id)
+    if thought and thought.author == "me":
+        db.session.delete(thought)
+        db.session.commit()
+        return '', 204
+    return '', 403

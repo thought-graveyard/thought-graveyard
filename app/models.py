@@ -15,3 +15,23 @@ class User(db.Model):
     #check password
     def check_pw(self,password):
         return check_password_hash(self.pw_hash, password)
+    
+class Thought(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200))
+    content = db.Column(db.Text)
+    emotions = db.Column(db.PickleType)
+    is_public = db.Column(db.Boolean)
+    author = db.Column(db.String(80), default="me")
+    position = db.Column(db.JSON)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "title": self.title,
+            "content": self.content,
+            "emotions": self.emotions or [],
+            "is_public": self.is_public,
+            "author": self.author,
+            "position": self.position
+        }
