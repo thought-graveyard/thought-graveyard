@@ -1,19 +1,24 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thought Graveyard</title>
+{% extends "layout.html" %}
 
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Jersey+10&display=swap" rel="stylesheet">
+{% block head %}
+    <style>
+        .popup {
+            background-color: rgba(0, 0, 0, 0.4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: fixed;
+            height: 100vh;
+            width: 100vw;
+        }
 
-    <!-- Import main stylesheet -->
-    <link rel="stylesheet" href="../static/css/main.css">
-</head>
-<body>
+        .hidden {
+            display: none !important;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
     <!-- Tombstone content modal to be populated by current tombstone data -->
     <div class="popup hidden" id="tombstone-content">
         <div class="card" onclick="hideTombstone()">
@@ -36,33 +41,6 @@
             <input type="text">
         </div>    
     </div>
-
-    <style>
-        .popup {
-            background-color: rgba(0, 0, 0, 0.4);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: fixed;
-            height: 100vh;
-            width: 100vw;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        .card {
-            background-color: #fff;
-            width: min(800px, 100%);
-            margin: 12px;
-            text-align: center;
-        }
-
-        h1, h2, h3, h4, h5, h6 {
-            font-family: "Jersey 10", monospace;
-        }
-    </style>
 
     <!-- DOM and Flask scripts -->
     <script>
@@ -151,5 +129,4 @@
 
     <!-- Canvas scripts -->
     <script defer src="../static/scripts/canvas.js"></script>
-</body>
-</html>
+{% endblock %}
