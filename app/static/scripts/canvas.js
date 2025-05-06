@@ -384,6 +384,82 @@ class Door {
 }
 
 
+class PieChart {
+    constructor(title, data, x, y, radius) {
+        this.title = title;
+        this.labels = Object.keys(data);
+        this.values = Object.values(data);
+        this.data = data;
+        this.x = x;
+        this.y = y;
+        this.radius = radius;
+    }
+
+    getColour(angle) {
+        return `hsl(${(180 * angle) / Math.PI}, 75%, 61%)`
+    }
+
+    drawSegment(context, startAngle, endAngle, colour) {
+        context.save();
+        context.fillStyle = colour;
+        context.strokeStyle = "#000";
+        context.beginPath();
+        context.moveTo(this.x - shift[0], this.y - shift[1]);
+        context.arc(this.x - shift[0], this.y - shift[1], this.radius, startAngle, endAngle);
+        context.closePath();
+        context.stroke();
+        context.fill();
+        context.restore();
+    }
+
+    drawText(context, text, size, x, y, maxWidth, colour) {
+        context.font = `${size}pt "Jersey 10"`;
+        context.textAlign = "center";
+        context.fillStyle = colour;
+        context.fillText(text, x - shift[0], y - shift[1], maxWidth);
+    }
+
+    drawLabel(context, text, position, colour) {
+        let base = Math.floor(position / 3);
+        let space = position % 3;
+
+        this.drawText(context, text, 10, this.x - this.radius + (this.radius * space), this.y + (this.radius * 1.5) + base * 15, this.radius / 1.5, colour);
+    }
+
+    drawChart(context) {
+        let total = this.values.reduce((a, b) => a + b, 0);
+        let position = 0;
+        let startAngle = 0;
+        let endAngle = 0;
+
+        // Draw segment for each numerical value
+        this.labels.forEach(label => {
+            endAngle += 2 * Math.PI * (this.data[label] / total);
+
+            this.drawSegment(context, startAngle, endAngle, this.getColour(endAngle));
+            this.drawLabel(context, label, position, this.getColour(endAngle));
+
+            startAngle = endAngle;
+            position += 1;
+        });
+    }
+
+    render(context) {
+        context.save();
+
+        // Draw background of pie chart
+        context.fillStyle = "#fff";
+        context.fillRect(this.x - shift[0] - (this.radius * 1.6), this.y - shift[1] - (this.radius * 1.8), 3.2 * this.radius, 3.6 * this.radius + Math.floor(this.labels.length / 3) * 10);
+
+        this.drawChart(context);
+
+        // Draw chart title
+        this.drawText(context, this.title, 20, this.x, this.y - (this.radius * 1.3), this.radius * 2.4, "#000000");
+
+        context.restore();
+    }
+}
+
 // Handle updates
 function update(dt, speed) {
     character.handleInput(dt, speed);
@@ -400,7 +476,12 @@ function render() {
     context.fillRect((shift[0] % 32) - 32, (shift[1] % 32) - 32, canvas.width, canvas.height);
     context.restore();
     
-    tombstones.render(context);
+    if (space != "stats") {
+        tombstones.render(context);
+    } else {
+        pie.render(context)
+    }
+    
     doors.forEach(door => {
         door.render(context);
     });
@@ -492,9 +573,10 @@ let doors;
 let tombstones;
 let spaceTitle;
 let space;
-let shift;
+let shift = [0, 0];
 let characterSpeed = 300;
 let input = new Input();
+let pie = new PieChart("Likes Per Category", { "aaaaaaa": 1, "hello": 1, "cccccccccc": 1, "ddddddddd": 1, "eeeee": 1}, 200, 200, 80);
 
 let images = new Resources([
     "../static/assets/setting/global.png",
