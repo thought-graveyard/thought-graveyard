@@ -13,7 +13,7 @@
     <div class="title">Registration</div>
     <div class="content">
       <!-- Register form -->
-      <form action="/register" method="POST">
+      <form action="/register" method="POST" id="registerForm">
         <div class="user-details">
           <!-- Put the name -->
           <div class="input-box">
@@ -194,6 +194,15 @@
     confirmInput.onkeyup = function() {
       checkpswMatch();
     }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const registerForm = document.getElementById('registerForm');
+      registerForm.addEventListener('submit', function(event){
+        if(registerForm.checkValidity()) {
+          alert('Membership registration is complete! You will be redirected to the login page');
+        }
+      });
+    });
   </script>
 </body>
 </html>
