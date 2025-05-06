@@ -68,12 +68,13 @@
         }
     </style>
 {% endblock %}
-</head>
+
 {% block body %}
     <div class="container stone">
         <div class="card">
             <h1>Sign In</h1>
-            <form>
+            
+            <form action="/login" method="POST">
                 <div class="form-group">
                     <label for="username">Username</label>
                     <input type="text" id="username" name="username">
@@ -87,28 +88,11 @@
                 </div>
                 
                 <button type="submit">Sign In</button>
+                
+                <div class="signup-text">
+                    Not a member? <a href="/register" class="signup-link">Sign up now</a>
+                </div>
             </form>
-            
-            <div class="signup-text">
-                Not a member? <a href="/register" class="signup-link">Sign up now</a>
-            </div>    
         </div>
-    <form action="/login" method="POST">
-      <div class="form-group">
-        <label for="username">Username</label>
-        <input type="text" id="username" name="username">
-      </div>
-      
-      <div class="form-group">
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password">
-        <a href="#" class="forgot">Forgot?</a>
-      </div>
-      
-      <button type="submit">Sign In</button>
-    </form>
-    
-    <div class="signup-text">
-      Not a member? <a href="/register" class="signup-link">Sign up now</a>
     </div>
 {% endblock %}
