@@ -43,9 +43,11 @@ def register():
 
         #check User is already exist or not by ID or Email
         exist_user = User.query.filter((User.username == username) | (User.email == email)).first()
+        
         if exist_user:
             flash("Your name or email have been using.")
-            return render_template('Registerform.html')
+            return render_template('register_page.html')
+        
         #create new user
         user = User(username=username, email=email)
         #hasing the password
@@ -59,7 +61,7 @@ def register():
         #move to log-in page
         return redirect('/login')
     #if 'GET' request, display register page
-    return render_template('Registerform.html')
+    return render_template('register_page.html')
 
 @app.route('/logout')
 def logout():

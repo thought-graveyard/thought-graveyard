@@ -24,7 +24,7 @@ class Resources {
 
         images.forEach(image => {
             this.load(image);
-        })
+        });
     }
 
     load(src) {
@@ -396,7 +396,7 @@ class PieChart {
     }
 
     getColour(angle) {
-        return `hsl(${(180 * angle) / Math.PI}, 75%, 61%)`
+        return `hsl(${(180 * angle) / Math.PI}, 75%, 67%)`
     }
 
     drawSegment(context, startAngle, endAngle, colour) {
@@ -407,8 +407,8 @@ class PieChart {
         context.moveTo(this.x - shift[0], this.y - shift[1]);
         context.arc(this.x - shift[0], this.y - shift[1], this.radius, startAngle, endAngle);
         context.closePath();
-        context.stroke();
         context.fill();
+        context.stroke();
         context.restore();
     }
 
@@ -436,7 +436,18 @@ class PieChart {
         this.labels.forEach(label => {
             endAngle += 2 * Math.PI * (this.data[label] / total);
 
+            let midAngle = (startAngle + endAngle) / 2;
+
             this.drawSegment(context, startAngle, endAngle, this.getColour(endAngle));
+            this.drawText(
+                context, 
+                `${Math.round(100 * this.data[label] / total)}%`, 
+                10, 
+                this.x + (this.radius / 1.5) * Math.cos(midAngle), 
+                this.y + (this.radius / 1.5) * Math.sin(midAngle), 
+                32, 
+                "#000000"
+            );
             this.drawLabel(context, label, position, this.getColour(endAngle));
 
             startAngle = endAngle;
@@ -460,6 +471,96 @@ class PieChart {
     }
 }
 
+
+class BarChart {
+    constructor(title, data, x, y, height) {
+        this.title = title;
+        this.labels = Object.keys(data);
+        this.values = Object.values(data);
+        this.data = data;
+        this.x = x;
+        this.y = y;
+        this.height = height;
+    }
+
+    getColour(position) {
+        return `hsl(${(360 / this.values.length) * position}, 75%, 67%)`;
+    }
+
+    drawBar(context, xPos, relativeHeight, colour) {
+        context.save();
+        context.fillStyle = colour;
+        context.strokeStyle = "#000";
+        context.beginPath();
+        context.rect(xPos - shift[0], this.y - shift[1] - relativeHeight * this.height, 20, relativeHeight * this.height);
+        context.closePath();
+        context.fill();
+        context.stroke();
+        context.restore();
+    }
+
+    drawText(context, text, size, x, y, maxWidth, colour) {
+        context.font = `${size}pt "Jersey 10"`;
+        context.textAlign = "center";
+        context.fillStyle = colour;
+        context.fillText(text, x - shift[0], y - shift[1], maxWidth);
+    }
+
+    drawLabel(context, text, position, colour, width) {
+        let base = Math.floor(position / 4);
+        let space = position % 4;
+
+        let xPos = this.x - (width / 2) + 30 + space * (width / 4);
+        let yPos = this.y + 20 + base * 15;
+
+        this.drawText(context, text, 10, xPos, yPos, 40, colour);
+    }
+
+    drawChart(context, width) {
+        let max = Math.max(...this.values);
+        let position = 0;
+
+        // Draw segment for each numerical value
+        this.labels.forEach(label => {
+            let relativeHeight = this.data[label] / max;
+            let xPos = this.x - (width / 2) + 20 + position * 30;
+
+            this.drawBar(context, xPos, relativeHeight, this.getColour(position));
+            
+            this.drawText(
+                context, 
+                this.data[label],
+                10, 
+                xPos + 10, 
+                this.y - (relativeHeight * this.height) + 12, 
+                20, 
+                "#000000"
+            ); 
+
+            this.drawLabel(context, label, position, this.getColour(position), width);
+
+            position += 1;
+        });
+    }
+
+    render(context) {
+        context.save();
+
+        // Draw background of pie chart
+        let width = 30 * (this.labels.length + 1);
+        context.fillStyle = "#fff";
+        context.fillRect(this.x - shift[0] - (width * 0.6), this.y - shift[1] - (this.height * 1.8), 1.2 * width, 2.4 * this.height + Math.floor(this.labels.length / 4) * 10);
+
+        this.drawChart(context, width);
+
+        // Draw chart title
+        this.drawText(context, this.title, 20, this.x, this.y - (this.height * 1.3), this.height * 2.4, "#000000");
+
+        context.restore();
+    }
+}
+
+
 // Handle updates
 function update(dt, speed) {
     character.handleInput(dt, speed);
@@ -479,7 +580,8 @@ function render() {
     if (space != "stats") {
         tombstones.render(context);
     } else {
-        pie.render(context)
+        pie.render(context);
+        bar.render(context)
     }
     
     doors.forEach(door => {
@@ -576,7 +678,9 @@ let space;
 let shift = [0, 0];
 let characterSpeed = 300;
 let input = new Input();
-let pie = new PieChart("Likes Per Category", { "aaaaaaa": 1, "hello": 1, "cccccccccc": 1, "ddddddddd": 1, "eeeee": 1}, 200, 200, 80);
+let example = { "aaaaaaa": 1, "hello": 7, "cccccccccc": 3, "aaaaaaaa": 1, "helloa": 4, "cccccccccca": 3, "yo": 2};
+let pie = new PieChart("Likes Per Category", example, 200, 200, 80);
+let bar = new BarChart("Likes Per Category", example, 600, 200, 80);
 
 let images = new Resources([
     "../static/assets/setting/global.png",
