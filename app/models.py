@@ -7,6 +7,9 @@ class User(db.Model):
     username = db.Column(db.String(128), unique=True, nullable=False)
     email = db.Column(db.String(128), unique=True, nullable=False)
     pw_hash = db.Column(db.String(128), nullable=False)
+    fullname = db.Column(db.String(128), nullable=True)
+    occupation = db.Column(db.String(50), nullable=True)
+    gender = db.Column(db.String(20), nullable=True)
     
     def set_pw(self, password):
         # Hash user password
