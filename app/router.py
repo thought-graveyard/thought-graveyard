@@ -41,6 +41,9 @@ def register():
         email = request.form.get('email')
         password = request.form.get('password')
 
+        fullname = request.form.get('fullname')
+        gender = request.form.get('gender')
+
         #check User is already exist or not by ID or Email
         exist_user = User.query.filter((User.username == username) | (User.email == email)).first()
         
@@ -49,7 +52,7 @@ def register():
             return render_template('register_page.html')
         
         #create new user
-        user = User(username=username, email=email)
+        user = User(username=username, email=email, fullname=fullname , gender = gender)
         #hasing the password
         user.set_pw(password)
         #add into database
