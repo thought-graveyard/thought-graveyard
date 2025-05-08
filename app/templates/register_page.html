@@ -1,13 +1,12 @@
-<!DOCTYPE html>
-<html lang="en" dir="ltr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% extends "layout.html" %}
+
+{% block head %}
   <title>Registration Form</title>
-  <link rel="stylesheet" href="../static/css/register.css">
-  <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/register.css') }}"> -->
-</head>
-<body>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/register.css') }}">
+  {% endblock %}
+
+
+{% block body %}
   <div class="container">
     <!-- Title session -->
     <div class="title">Registration</div>
@@ -108,7 +107,7 @@
     var letter = document.getElementById("letter");
     var length = document.getElementById("length");
     var match = document.getElementById("match");
-
+    /*
     // Occupation select event
     document.addEventListener('DOMContentLoaded', function() {
       const occupationSelect = document.getElementById('occupation-select');
@@ -117,7 +116,7 @@
         console.log('Selected occupation category:', this.value);
       });
     });
-
+    */
     // Show password requirements when focusing on password fields
     myInput.onfocus = function() {
       document.getElementById("msg").style.display = "block";
@@ -205,5 +204,4 @@
       });
     });
   </script>
-</body>
-</html>
+{% endblock %}
