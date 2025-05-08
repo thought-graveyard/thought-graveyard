@@ -28,3 +28,21 @@ flask db init
 flask db migrate -m "initial migration"
 flask db upgrade
 ```
+
+## Environment Setup
+This application uses environment variables to store sensitive information such as SECRET_KEY.
+
+### Setting up the environment
+1. Install required packages: 
+   pip install python-dotenv
+2. Create a `.env` file in the project root folder with the following content:
+   SECRET_KEY= " "
+
+IMPORTANT: All team members must use the same SECRET_KEY. The actual key should be shared through secure channels (private message, encrypted email, etc.) and NOT written in any document that will be committed to Git.
+
+3. The `.env` file is excluded from Git via `.gitignore`, so each team member needs to create their own local `.env` file with the shared team SECRET_KEY.
+
+### Running the application
+From the project root directory:
+set FLASK_APP=app
+flask run
