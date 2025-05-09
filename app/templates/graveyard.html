@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Graveyard of Thoughts</title>
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <script>
     const currentMode = window.location.pathname.includes("personal") ? "personal" : "public";
   </script>

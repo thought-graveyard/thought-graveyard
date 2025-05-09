@@ -9,8 +9,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const searchInput = document.getElementById('search-keyword');
   const searchResults = document.getElementById('search-results');
   const emotionFilters = document.querySelectorAll('.filter-emotion');
-
   const fetchUrl = currentMode === 'public' ? '/api/public-thoughts' : '/api/personal-thoughts';
+  const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
   fetch(fetchUrl)
     .then(res => res.json())
@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     fetch('/api/thoughts', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
       body: JSON.stringify({
         title, content, emotions, is_public: isPublic
       })
@@ -80,7 +80,12 @@ function renderGravestone(thought) {
     delBtn.onclick = (e) => {
       e.stopPropagation();
       if (confirm("Delete it?")) {
-        fetch(`/api/thoughts/${thought.id}`, { method: 'DELETE' })
+        fetch(`/api/thoughts/${thought.id}`, { 
+          method: 'DELETE',
+          headers: {
+            'X-CSRFToken': csrfToken
+          }
+        })
           .then(() => {
             allThoughts = allThoughts.filter(x => x.id !== thought.id);
             popup.remove();
