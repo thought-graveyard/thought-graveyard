@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from app import app, db
 from app.models import User, Thought
+from app.forms import RegisterForm
 import random
 
 @app.route('/welcome')
@@ -38,36 +39,36 @@ def login():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    if request.method == 'POST':
-        #Bring user input
-        username = request.form.get('username')
-        email = request.form.get('email')
-        password = request.form.get('password')
+    form = RegisterForm() 
+    if form.validate_on_submit():
 
-        fullname = request.form.get('fullname')
-        gender = request.form.get('gender')
-
-        #check User is already exist or not by ID or Email
-        exist_user = User.query.filter((User.username == username) | (User.email == email)).first()
+        exist_user = User.query.filter(
+            (User.username == form.username.data) | 
+            (User.email == form.email.data)
+        ).first()
         
         if exist_user:
             flash("Your name or email have been using.")
-            return render_template('register_page.html')
+            return render_template('register_page.html', form=form)
         
-        #create new user
-        user = User(username=username, email=email, fullname=fullname , gender = gender)
-        #hasing the password
-        user.set_pw(password)
-        #add into database
+        user = User(
+            username=form.username.data,
+            email=form.email.data,
+            fullname=form.fullname.data,
+            occupation=form.occupation.data,
+            gender=form.gender.data
+        )
+
+        user.set_pw(form.password.data)
+        
         db.session.add(user)
-        #store changed information
         db.session.commit()
 
         flash("Complete your join. please log-in")
-        #move to log-in page
         return redirect('/login')
-    #if 'GET' request, display register page
-    return render_template('register_page.html')
+    
+
+    return render_template('register_page.html', form=form)
 
 @app.route('/logout')
 def logout():
