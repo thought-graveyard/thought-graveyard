@@ -13,6 +13,7 @@
     <div class="content">
       <!-- Register form -->
       <form action="/register" method="POST" id="registerForm">
+        {{ form.csrf_token }}
         <div class="user-details">
           <!-- Put the name -->
           <div class="input-box">
