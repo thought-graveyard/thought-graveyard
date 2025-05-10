@@ -37,8 +37,18 @@
     <div class="main game-screen" id="main">
         <div class="col sidebar">
             <h2>Thought Graveyard</h2>
-            <h3>Search</h3>
-            <input type="text">
+            <div id="search-section">
+                <h3>Search</h3>
+                <input type="text" id="search-keyword" placeholder="Keywords" class="w-full p-2 border mb-2" />
+                <div>
+                  <p>Emotion Filter:</p>
+                  <label><input type="checkbox" class="filter-emotion" value="😄" /> 😄</label>
+                  <label><input type="checkbox" class="filter-emotion" value="😢" /> 😢</label>
+                  <label><input type="checkbox" class="filter-emotion" value="😡" /> 😡</label>
+                  <label><input type="checkbox" class="filter-emotion" value="😶" /> 😶</label>
+                </div>
+                <ul id="search-results" class="text-sm space-y-2 mt-4"></ul>
+            </div>
         </div>    
     </div>
 
@@ -71,60 +81,27 @@
             document.getElementById("tombstone-content").classList.add("hidden");
         }
 
-        function loadLocalSpace() {
+        async function loadLocalSpace() {
             // Load only local thoughts
+            let request = await fetch("/api/personal-thoughts");
+            
+            tombstoneData = await request.json();
+
+            console.log(tombstoneData);
         }
 
-        function loadGlobalSpace() {
+        async function loadGlobalSpace() {
             // Load all thoughts
+            let request = await fetch("/api/public-thoughts");
+            
+            tombstoneData = await request.json();
         }
 
         function loadStatsSpace() {
             tombstoneData = [];
         }
 
-        let tombstoneData = [{
-            id: 1234567,
-            content: "Hello, how are you?",
-            type: 0,
-            pos: [300, 100],
-            likes: 0
-        },
-        {
-            id: 1234568,
-            content: "Hola, como estas?",
-            type: 1,
-            pos: [500, 100],
-            likes: 0
-        },
-        {
-            id: 1234569,
-            content: "Good day!",
-            type: 2,
-            pos: [700, 100],
-            likes: 0
-        },
-        {
-            id: 1234560,
-            content: "Bonjour, comment ça va?",
-            type: 3,
-            pos: [900, 100],
-            likes: 0
-        },
-        {
-            id: 1234570,
-            content: "Yo bro. How's life?",
-            type: 4,
-            pos: [300, 200],
-            likes: 0
-        },
-        {
-            id: 1234571,
-            content: "Wahgwan? Mi deh yah!",
-            type: 5,
-            pos: [500, 200],
-            likes: 0
-        }]
+        let tombstoneData = []
     </script>
 
     <!-- Canvas scripts -->

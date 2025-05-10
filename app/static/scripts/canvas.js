@@ -290,11 +290,11 @@ class Tombstones {
         this.locs = []
 
         this.tombstones.forEach(tombstone => {
-            tombstone["src"] = images.get(`../static/assets/tombstones/${tombstone.type}.png`);
+            tombstone["src"] = images.get(`../static/assets/tombstones/${tombstone.tombstone}.png`);
 
-            if (tombstone["pos"][0] - this.shift[0] >= -32 && tombstone["pos"][0] - this.shift[0] <= canvas.width) {
-                if (tombstone["pos"][1] - this.shift[1] >= -32 && tombstone["pos"][1] - this.shift[1] <= canvas.height) {
-                    this.locs.push([tombstone["pos"][0] - this.shift[0], tombstone["pos"][1] - this.shift[1]]);
+            if (tombstone["position"][0] - this.shift[0] >= -32 && tombstone["position"][0] - this.shift[0] <= canvas.width) {
+                if (tombstone["position"][1] - this.shift[1] >= -32 && tombstone["position"][1] - this.shift[1] <= canvas.height) {
+                    this.locs.push([tombstone["position"][0] - this.shift[0], tombstone["position"][1] - this.shift[1]]);
                     this.inFrame.push(tombstone);
                 }
             }
@@ -307,9 +307,9 @@ class Tombstones {
         this.locs = []
 
         this.tombstones.forEach(tombstone => {
-            if (tombstone["pos"][0] - this.shift[0] >= -32 && tombstone["pos"][0] - this.shift[0] <= canvas.width) {
-                if (tombstone["pos"][1] - this.shift[1] >= -32 && tombstone["pos"][1] - this.shift[1] <= canvas.height) {
-                    this.locs.push([tombstone["pos"][0] - this.shift[0], tombstone["pos"][1] - this.shift[1]]);
+            if (tombstone["position"][0] - this.shift[0] >= -32 && tombstone["position"][0] - this.shift[0] <= canvas.width) {
+                if (tombstone["position"][1] - this.shift[1] >= -32 && tombstone["position"][1] - this.shift[1] <= canvas.height) {
+                    this.locs.push([tombstone["position"][0] - this.shift[0], tombstone["position"][1] - this.shift[1]]);
                     this.inFrame.push(tombstone);
                 }
             }
@@ -324,7 +324,7 @@ class Tombstones {
                 context.filter = "brightness(1.5)";
             }
 
-            context.drawImage(tombstone.src, tombstone["pos"][0] - this.shift[0], tombstone["pos"][1] - this.shift[1], 64, 64);
+            context.drawImage(tombstone.src, tombstone["position"][0] - this.shift[0], tombstone["position"][1] - this.shift[1], 64, 64);
             context.restore();
         });
     }
@@ -340,11 +340,11 @@ class Door {
         this.src = images.get(`../static/assets/doors/${this.location}_door.png`);
     }
 
-    changeSpace() {
+    async changeSpace() {
         if (this.location == "local") {
-            loadLocalSpace();
+            await loadLocalSpace();
         } else if (this.location == "global") {
-            loadGlobalSpace();
+            await loadGlobalSpace();
         } else {
             loadStatsSpace();
         }
@@ -646,6 +646,8 @@ function init() {
 
     space = "local";
     spaceTitle = "Local Thoughts";
+
+    loadLocalSpace();
 
     shift = [0, 0];
     tombstones = new Tombstones(tombstoneData);

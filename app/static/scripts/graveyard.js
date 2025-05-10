@@ -51,23 +51,22 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('input-public').checked = false;
       document.querySelectorAll('.modal-emotion').forEach(cb => cb.checked = false);
     });
-  });
 
-  searchInput.addEventListener('input', () => renderSearchResults(allThoughts));
-  emotionFilters.forEach(cb => cb.addEventListener('change', () => renderSearchResults(allThoughts)));
+    searchInput.addEventListener('input', () => renderSearchResults(allThoughts));
+    emotionFilters.forEach(cb => cb.addEventListener('change', () => renderSearchResults(allThoughts)));
 });
 
 function renderGravestone(thought) {
-  const container = document.createElement('div');
-  container.className = 'absolute text-2xl cursor-pointer';
-  container.style.top = thought.position.top;
-  container.style.left = thought.position.left;
-  container.innerText = '🪦';
-  container.dataset.id = thought.id;
+    const container = document.createElement('div');
+    container.className = 'absolute text-2xl cursor-pointer';
+    container.style.top = thought.position.top;
+    container.style.left = thought.position.left;
+    container.innerText = '🪦';
+    container.dataset.id = thought.id;
 
-  const popup = document.createElement('div');
-  popup.className = 'hidden absolute left-full top-0 ml-2 bg-white border rounded shadow-md p-2 text-sm w-60 z-10';
-  popup.innerHTML = `
+    const popup = document.createElement('div');
+    popup.className = 'hidden absolute left-full top-0 ml-2 bg-white border rounded shadow-md p-2 text-sm w-60 z-10';
+    popup.innerHTML = `
     <div class="font-bold mb-1">${thought.title}</div>
     <div class="mb-1">${thought.content}</div>
     <div class="text-xs text-gray-500 mb-1">Emotion: ${thought.emotions.join(' ')}</div>
@@ -114,48 +113,48 @@ function renderGravestone(thought) {
 }
 
 function renderSearchResults(thoughts) {
-  const keyword = document.getElementById('search-keyword').value.toLowerCase();
-  const checkedEmotions = Array.from(document.querySelectorAll('.filter-emotion:checked')).map(cb => cb.value);
+    const keyword = document.getElementById('search-keyword').value.toLowerCase();
+    const checkedEmotions = Array.from(document.querySelectorAll('.filter-emotion:checked')).map(cb => cb.value);
 
-  const filtered = thoughts.filter(t => {
-    const matchesKeyword = t.title.toLowerCase().includes(keyword) || t.content.toLowerCase().includes(keyword);
-    const matchesEmotion = checkedEmotions.length === 0 || checkedEmotions.every(e => t.emotions.includes(e));
-    return matchesKeyword && matchesEmotion;
-  });
+    const filtered = thoughts.filter(t => {
+        const matchesKeyword = t.title.toLowerCase().includes(keyword) || t.content.toLowerCase().includes(keyword);
+        const matchesEmotion = checkedEmotions.length === 0 || checkedEmotions.every(e => t.emotions.includes(e));
+        return matchesKeyword && matchesEmotion;
+    });
 
-  const list = document.getElementById('search-results');
-  list.innerHTML = '';
-  filtered.forEach(t => {
-    const li = document.createElement('li');
-    li.className = 'bg-gray-100 p-2 rounded cursor-pointer hover:bg-gray-200 flex justify-between items-center';
-    li.innerHTML = `<span>🪦 ${t.title}</span>`;
+    const list = document.getElementById('search-results');
+    list.innerHTML = '';
+    filtered.forEach(t => {
+        const li = document.createElement('li');
+        li.className = 'bg-gray-100 p-2 rounded cursor-pointer hover:bg-gray-200 flex justify-between items-center';
+        li.innerHTML = `<span>🪦 ${t.title}</span>`;
 
-    if (t.author === "me") {
-      const delBtn = document.createElement('button');
-      delBtn.innerText = "Delete";
-      delBtn.className = "text-red-600 text-xs underline ml-4";
-      delBtn.onclick = (e) => {
-        e.stopPropagation();
-        if (confirm("Delete it?")) {
-          fetch(`/api/thoughts/${t.id}`, { method: 'DELETE' })
-            .then(() => {
-              allThoughts = allThoughts.filter(x => x.id !== t.id);
-              renderSearchResults(allThoughts);
-              document.getElementById('graveyard').innerHTML = '';
-              allThoughts.forEach(renderGravestone);
-            });
+        if (t.author === "me") {
+            const delBtn = document.createElement('button');
+            delBtn.innerText = "Delete";
+            delBtn.className = "text-red-600 text-xs underline ml-4";
+            delBtn.onclick = (e) => {
+                e.stopPropagation();
+                if (confirm("Delete it?")) {
+                    fetch(`/api/thoughts/${t.id}`, { method: 'DELETE' })
+                        .then(() => {
+                            allThoughts = allThoughts.filter(x => x.id !== t.id);
+                            renderSearchResults(allThoughts);
+                            document.getElementById('graveyard').innerHTML = '';
+                            allThoughts.forEach(renderGravestone);
+                        });
+                }
+            };
+            li.appendChild(delBtn);
         }
-      };
-      li.appendChild(delBtn);
-    }
 
-    li.onclick = () => {
-      const grave = document.querySelector(`[data-id='${t.id}']`);
-      if (grave) {
-        grave.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        grave.click();
-      }
-    };
-    list.appendChild(li);
-  });
+        li.onclick = () => {
+            const grave = document.querySelector(`[data-id='${t.id}']`);
+            if (grave) {
+                grave.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                grave.click();
+            }
+        };
+        list.appendChild(li);
+    });
 }

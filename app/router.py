@@ -9,10 +9,16 @@ import random
 
 @app.route('/welcome')
 def landing():
+    if session.get("user_id") != None:
+        return redirect("/")
+
     return render_template('landing_page.html')
 
 @app.route('/')
 def main():
+    if session.get("user_id") == None:
+        return redirect("/welcome")
+
     return render_template('main_page.html')
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -60,14 +66,17 @@ def register():
         )
 
         user.set_pw(form.password.data)
-        
+        #create new user
+        user = User(username=username, email=email, fullname=fullname, gender=gender)
+        #hasing the password
+        user.set_pw(password)
+        #add into database
         db.session.add(user)
         db.session.commit()
 
         flash("Complete your join. please log-in")
         return redirect('/login')
     
-
     return render_template('register_page.html', form=form)
 
 @app.route('/logout')
@@ -87,37 +96,73 @@ def personal():
 
 @app.route('/api/public-thoughts')
 def public_thoughts():
-    thoughts = Thought.query.filter_by(is_public=True).all()
-    return jsonify([t.to_dict() for t in thoughts])
+    if session.get("user_id") != None:
+        thoughts = Thought.query.filter_by(space = "public").all()
+        return jsonify([t.to_dict() for t in thoughts])
+    
+    return "Invalid permissions to view thoughts", 403
 
 @app.route('/api/personal-thoughts')
 def personal_thoughts():
-    thoughts = Thought.query.filter_by(is_public=False, author="me").all()
-    return jsonify([t.to_dict() for t in thoughts])
+    if session.get("user_id") != None:
+        thoughts = Thought.query.filter_by(author = session.get("user_id")).all()
+        return jsonify([t.to_dict() for t in thoughts])
+    
+    return "Invalid permissions to view thoughts", 403
+
 
 @app.route('/api/thoughts', methods=['POST'])
 def add_thought():
-    data = request.json
-    new_thought = Thought(
-        title=data['title'],
-        content=data['content'],
-        emotions=data.get('emotions', []),
-        is_public=data.get('is_public', False),
-        author="me",
-        position={
-            "top": f"{random.randint(5, 85)}%",
-            "left": f"{random.randint(5, 85)}%"
-        }
-    )
-    db.session.add(new_thought)
-    db.session.commit()
-    return jsonify(new_thought.to_dict()), 201
+    if session.get("user_id") != None:
+        data = request.json
+
+        new_thought = Thought(
+            title = data.get("title"),
+            content = data.get("content"),
+            emotions = data.get("emotions", []),
+            space = data.get("space"),
+            author = session.get("user_id"),
+            tombstone = session.get("tombstone"),
+            position = [
+                random.randint(5, 85),
+                random.randint(5, 85)
+            ],
+            likes = 1
+        )
+
+        db.session.add(new_thought)
+        db.session.commit()
+
+        return jsonify(new_thought.to_dict()), 201
+    
+    return "Invalid permissions to add thought", 403
+
 
 @app.route('/api/thoughts/<int:thought_id>', methods=['DELETE'])
 def delete_thought(thought_id):
-    thought = Thought.query.get(thought_id)
-    if thought and thought.author == "me":
-        db.session.delete(thought)
-        db.session.commit()
-        return '', 204
-    return '', 403
+    if session.get("user_id") != None:
+        thought = Thought.query.get(thought_id)
+
+        if thought and thought.author == session.get("user_id"):
+            db.session.delete(thought)
+            db.session.commit()
+            return "Successfully deleted thought", 204
+    
+    return "Failed to delete thought", 403
+
+
+@app.route('/api/thoughts/<int:thought_id>', methods=['POST'])
+def like_thought(thought_id):
+    if session.get("user_id") != None:
+        thought = Thought.query.get(thought_id)
+
+        if thought:
+            if session.get("user_id") not in thought.to_dict()["likes"]:
+                thought.likes.append(session.get("user_id"))
+            else:
+                thought.likes.remove(session.get("user_id"))
+            
+            db.session.commit()
+            return "Successfully deleted thought", 204
+    
+    return "Failed to like thought", 403
