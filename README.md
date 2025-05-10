@@ -15,19 +15,10 @@ CITS3403 Agile Web Development Group Project.
 - Landing page
 - Login page
 - Register page
-
-## Usage
-
-```
-python3 -m venv virtualenv
-source ./virtualenv/bin/activate
-pip install -r requirements.txt
-flask run
-
-flask db init
-flask db migrate -m "initial migration"
-flask db upgrade
-```
+- Main page
+  - Create option
+  - Share option
+- Statistics page
 
 ## Environment Setup
 This application uses environment variables to store sensitive information such as SECRET_KEY.
@@ -36,13 +27,22 @@ This application uses environment variables to store sensitive information such 
 1. Install required packages: 
    pip install python-dotenv
 2. Create a `.env` file in the project root folder with the following content:
-   SECRET_KEY= " "
+   SECRET_KEY="<SECRET_KEY_HERE>"
 
-IMPORTANT: All team members must use the same SECRET_KEY. The actual key should be shared through secure channels (private message, encrypted email, etc.) and NOT written in any document that will be committed to Git.
+Whilst it is essential that this key is kept private for production purposes, our testing uses the key: `ThoughOfGraveYardG19!23$XYZ@#456`. As such, this can be set, for testing purposes, using the following command.
+
+```
+echo "SECRET_KEY=\"ThoughOfGraveYardG19doc_size.jsXYZ@#456\"" > .env
+```
 
 3. The `.env` file is excluded from Git via `.gitignore`, so each team member needs to create their own local `.env` file with the shared team SECRET_KEY.
 
-### Running the application
-From the project root directory:
-set FLASK_APP=app
+## Usage
+
+```
+python3 -m venv virtualenv
+source ./virtualenv/bin/activate
+pip install -r requirements.txt
+flask db upgrade
 flask run
+```

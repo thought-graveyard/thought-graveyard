@@ -10,6 +10,6 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # key for Security
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'ThoughtofGraveyard-dev'
+    SECRET_KEY = os.environ.get("SECRET_KEY")
 
 

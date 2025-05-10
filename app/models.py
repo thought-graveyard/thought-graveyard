@@ -18,15 +18,18 @@ class User(db.Model):
     #check password
     def check_pw(self,password):
         return check_password_hash(self.pw_hash, password)
-    
+
+
 class Thought(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200))
     content = db.Column(db.Text)
     emotions = db.Column(db.PickleType)
-    is_public = db.Column(db.Boolean)
-    author = db.Column(db.String(80), default="me")
+    space = db.Column(db.String(10))
+    author = db.Column(db.String(80))
     position = db.Column(db.JSON)
+    tombstone = db.Column(db.Integer)
+    likes = db.Column(db.JSON)
 
     def to_dict(self):
         return {
@@ -34,7 +37,9 @@ class Thought(db.Model):
             "title": self.title,
             "content": self.content,
             "emotions": self.emotions or [],
-            "is_public": self.is_public,
+            "space": self.space,
             "author": self.author,
-            "position": self.position
+            "position": self.position,
+            "tombstone": self.tombstone,
+            "likes": self.likes
         }
