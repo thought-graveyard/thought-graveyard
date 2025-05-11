@@ -1,21 +1,132 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thought Graveyard</title>
+{% extends "layout.html" %}
 
-    <!-- Import main stylesheet -->
-    <link rel="stylesheet" href="../static/css/main.css">
+{% block head %}
+    <style>
+        .popup {
+            background-color: rgba(0, 0, 0, 0.4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: fixed;
+            height: 100vh;
+            width: 100vw;
+        }
 
-    <!-- Link JS canvas -->
-    <script defer src="../static/scripts/canvas.js"></script>
-</head>
-<body>
-    <div class="main" id="main">
-        <div class="sidebar">
+        .hidden {
+            display: none !important;
+        }
+    </style>
+{% endblock %}
 
+{% block body %}
+    <!-- Tombstone content modal to be populated by current tombstone data -->
+    <div class="popup hidden" id="tombstone-content">
+        <div class="card" onclick="hideTombstone()">
+            <h2 id="tombstone-text"></h2>
+            <h2 id="tombstone-likes"></h2>
+        </div>
+    </div>
+
+    <!-- Tombstone creation modal to add data to database -->
+    <div class="popup hidden" id="tombstone-creation">
+        <div class="card">
+            <h2>Nothing here yet</h2>
+        </div>
+    </div>
+
+    <div class="main game-screen" id="main">
+        <div class="col sidebar">
+            <h2>Thought Graveyard</h2>
+            <h3>Search</h3>
+            <input type="text">
         </div>    
     </div>
-</body>
-</html>
+
+    <!-- DOM and Flask scripts -->
+    <script>
+        function displayTombstone(id) {
+            let tombstone;
+
+            tombstoneData.forEach(stone => {
+                if (stone.id == id) {
+                    tombstone = stone;
+                }
+            });
+
+            document.getElementById("tombstone-text").textContent = tombstone.content;
+            document.getElementById("tombstone-likes").textContent = `${tombstone.likes} likes`;
+            document.getElementById("tombstone-content").classList.remove("hidden");
+        }
+
+        function hideTombstone() {
+            document.getElementById("tombstone-content").classList.add("hidden");
+        }
+
+        function showTombstoneCreator() {
+            document.getElementById("tombstone-content").classList.remove("hidden");
+        }
+
+        function addTombstone(content, type) {
+            // Add tombstone method to be called by canvas
+            document.getElementById("tombstone-content").classList.add("hidden");
+        }
+
+        function loadLocalSpace() {
+            // Load only local thoughts
+        }
+
+        function loadGlobalSpace() {
+            // Load all thoughts
+        }
+
+        function loadStatsSpace() {
+            tombstoneData = [];
+        }
+
+        let tombstoneData = [{
+            id: 1234567,
+            content: "Hello, how are you?",
+            type: 0,
+            pos: [300, 100],
+            likes: 0
+        },
+        {
+            id: 1234568,
+            content: "Hola, como estas?",
+            type: 1,
+            pos: [500, 100],
+            likes: 0
+        },
+        {
+            id: 1234569,
+            content: "Good day!",
+            type: 2,
+            pos: [700, 100],
+            likes: 0
+        },
+        {
+            id: 1234560,
+            content: "Bonjour, comment ça va?",
+            type: 3,
+            pos: [900, 100],
+            likes: 0
+        },
+        {
+            id: 1234570,
+            content: "Yo bro. How's life?",
+            type: 4,
+            pos: [300, 200],
+            likes: 0
+        },
+        {
+            id: 1234571,
+            content: "Wahgwan? Mi deh yah!",
+            type: 5,
+            pos: [500, 200],
+            likes: 0
+        }]
+    </script>
+
+    <!-- Canvas scripts -->
+    <script defer src="../static/scripts/canvas.js"></script>
+{% endblock %}

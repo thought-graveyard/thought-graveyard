@@ -1,11 +1,20 @@
-
 from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+from app.config import Config
 
 app = Flask(__name__, 
-            static_folder='static',  # static folder
-            static_url_path='/static')  # URL Path
+            static_folder='static',
+            static_url_path='/static') 
 
-from app import router
+#apply set to file
+app.config.from_object(Config)
+
+#initiciate database
+db = SQLAlchemy(app)
+migrate = Migrate(app,db)
+#import the model
+from app import models, router
 
 if __name__ == "__main__":
     app.run(debug=True)
