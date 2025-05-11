@@ -82,12 +82,26 @@
         }
 
         async function loadLocalSpace() {
+        try {
             // Load only local thoughts
             let request = await fetch("/api/personal-thoughts");
             
+            if (!request.ok) {
+            throw new Error(`HTTP error: ${request.status}`);
+            }
+            
             tombstoneData = await request.json();
-
-            console.log(tombstoneData);
+        } catch (error) {
+            // User-friendly error message
+            const errorMessage = document.createElement("div");
+            errorMessage.className = "error-message bg-red-100 p-2 rounded text-red-700 mb-4";
+            errorMessage.textContent = "Unable to load your thoughts. Please try again later.";
+            
+            document.querySelector(".sidebar").appendChild(errorMessage);
+            
+            // Fallback to empty data
+            tombstoneData = [];
+            }
         }
 
         async function loadGlobalSpace() {
