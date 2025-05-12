@@ -17,25 +17,29 @@ body {
 .container {
   max-width: 700px;
   width: 100%;
-  background-color: #fff;
+  background-color: transparent;
   padding: 25px 30px;
-  border-radius: 5px;
+  border: none;
+  box-shadow: none;
+}
+.card {
+  background-color: #fff;
+  width: min(800px, 100%);
+  margin: 12px;
+  text-align: center;
+  padding: 2em;
+  border: 2px solid #444;
   box-shadow: 0 5px 10px rgba(0, 0, 0, 0.14);
 }
 .container .title {
-  font-size: 25px;
+  font-size: 32px;
   font-weight: 500;
-  position: relative;
+  font-family: "Jersey 10", monospace;
+  margin-bottom: 20px;
+  text-align: center;
 }
 .container .title::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  height: 3px;
-  width: 30px;
-  border-radius: 5px;
-  background: linear-gradient(135deg, #054555, #9b59b6);
+  content: none;
 }
 .content form .user-details {
   display: flex;
@@ -132,16 +136,17 @@ form .button input {
   width: 100%;
   border-radius: 5px;
   border: none;
-  color: #fff;
+  color: #000;
   font-size: 18px;
   font-weight: 500;
   letter-spacing: 1px;
   cursor: pointer;
   transition: all 0.3s ease;
-  background: linear-gradient(-135deg, #2c3e50, #4a235a);
+  background-color: #ccc8c8;
+  border-radius: 0;
 }
 form .button input:hover {
-  background: linear-gradient(-135deg, #2f3640, #1e272e);
+  background-color: #b0afaf;
 }
 /* Responsive media query code for mobile devices */
 @media(max-width: 584px) {
