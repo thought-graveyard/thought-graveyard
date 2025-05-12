@@ -116,17 +116,36 @@ def add_thought():
     if session.get("user_id") != None:
         data = request.json
 
+        position = [
+            random.randint(0, 19) * 50,
+            random.randint(0, 9) * 50
+        ]
+
+        shift = random.randint(0, 3)
+
+        thoughts = Thought.query.filter_by(space = "public").all()
+
+        # Ensure that position is not occupied by other thoguths
+        for thought in thoughts:
+            if position == thought.to_dict()["position"]:
+                if shift == 0:
+                    position[1] -= 500
+                if shift == 1:
+                    position[0] += 1000
+                if shift == 2:
+                    position[1] += 500
+                if shift == 3:
+                    position[0] -= 1000
+
         new_thought = Thought(
             title = data.get("title"),
             content = data.get("content"),
             emotions = data.get("emotions", []),
             space = data.get("space"),
             author = session.get("user_id"),
-            tombstone = session.get("tombstone"),
-            position = [
-                random.randint(5, 85),
-                random.randint(5, 85)
-            ],
+            tombstone = data.get("tombstone"),
+            local_position = data.get("local_position"),
+            position = position,
             likes = 1
         )
 

@@ -32,35 +32,7 @@
     </div>
   </div>
 
-  <div id="add-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-    <div class="bg-white p-6 rounded w-full max-w-md">
-      <h2 class="text-xl font-bold mb-4">New Tombstone</h2>
-      <input id="input-title" placeholder="Epitaph" class="border p-2 w-full mb-2" />
-      <textarea id="input-content" placeholder="Detail Thought" class="border p-2 w-full mb-2"></textarea>
-      <div class="mb-2">
-        Tombstone:
-        <label><input type="checkbox" class="modal-emotion" value="😄"> 😄</label>
-        <label><input type="checkbox" class="modal-emotion" value="😢"> 😢</label>
-        <label><input type="checkbox" class="modal-emotion" value="😡"> 😡</label>
-        <label><input type="checkbox" class="modal-emotion" value="😶"> 😶</label>
-      </div>
-      <div class="mb-2">
-        Emotion:
-        <label><input type="checkbox" class="modal-emotion" value="😄"> 😄</label>
-        <label><input type="checkbox" class="modal-emotion" value="😢"> 😢</label>
-        <label><input type="checkbox" class="modal-emotion" value="😡"> 😡</label>
-        <label><input type="checkbox" class="modal-emotion" value="😶"> 😶</label>
-      </div>
-      <label class="block mb-4">
-        <input type="checkbox" id="input-public" /> Public
-        <input type="checkbox" id="input-personal" /> Private
-      </label>
-      <div class="flex justify-end gap-2">
-        <button id="close-modal" class="px-4 py-2 bg-gray-400 text-white rounded">Cancel</button>
-        <button id="save-thought" class="px-4 py-2 bg-blue-600 text-white rounded">Submit</button>
-      </div>
-    </div>
-  </div>
+  
 
   <script defer src="{{ url_for('static', filename='../static/scripts/graveyard.js') }}"></script>
 </body>

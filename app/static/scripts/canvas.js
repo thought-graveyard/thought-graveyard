@@ -3,11 +3,21 @@ let canvas = document.createElement("canvas");
 let context = canvas.getContext("2d");
 canvas.classList.add("col");
 
-canvas.width = document.body.clientWidth * 0.8 * 0.9;
+if (document.body.clientWidth > 500) {
+    canvas.width = (document.body.clientWidth - 200) * 0.8;
+} else {
+    canvas.width = document.body.clientWidth * 0.8;
+}
+
 canvas.height = document.body.clientHeight * 0.8;
 
 document.body.onresize = () => {
-    canvas.width = document.body.clientWidth * 0.8 * 0.9;
+    if (document.body.clientWidth > 500) {
+        canvas.width = (document.body.clientWidth - 200) * 0.8;
+    } else {
+        canvas.width = document.body.clientWidth * 0.8;
+    }
+    
     canvas.height = document.body.clientHeight * 0.8;
 };
 
@@ -133,6 +143,8 @@ class Sprite {
                         }
                     });
                 }    
+            } else if (space == "local") {
+                showTombstoneCreator();
             }
         }
     }
@@ -280,40 +292,37 @@ class Input {
 
 class Tombstones {
     constructor(tombstones) {
-        this.reconstruct(tombstones);
+        this.tombstones = tombstones;
+        this.update(shift);
     }
 
-    reconstruct(tombstones) {
-        this.tombstones = tombstones;
+    update(shift) {
         this.inFrame = [];
-        this.shift = shift;
         this.locs = []
+
+        console.log(this.locs, shift);
 
         this.tombstones.forEach(tombstone => {
             tombstone["src"] = images.get(`../static/assets/tombstones/${tombstone.tombstone}.png`);
 
-            if (tombstone["position"][0] - this.shift[0] >= -32 && tombstone["position"][0] - this.shift[0] <= canvas.width) {
-                if (tombstone["position"][1] - this.shift[1] >= -32 && tombstone["position"][1] - this.shift[1] <= canvas.height) {
-                    this.locs.push([tombstone["position"][0] - this.shift[0], tombstone["position"][1] - this.shift[1]]);
-                    this.inFrame.push(tombstone);
+            if (space == "local") {
+                if (tombstone["local_position"][0] - shift[0] >= -32 && tombstone["local_position"][0] - shift[0] <= canvas.width) {
+                    if (tombstone["local_position"][1] - shift[1] >= -32 && tombstone["local_position"][1] - shift[1] <= canvas.height) {
+                        this.locs.push([tombstone["local_position"][0] - shift[0], tombstone["local_position"][1] - shift[1]]);
+                        this.inFrame.push(tombstone);
+                    }
+                }
+            } else {
+                if (tombstone["position"][0] - shift[0] >= -32 && tombstone["position"][0] - shift[0] <= canvas.width) {
+                    if (tombstone["position"][1] - shift[1] >= -32 && tombstone["position"][1] - shift[1] <= canvas.height) {
+                        this.locs.push([tombstone["position"][0] - shift[0], tombstone["position"][1] - shift[1]]);
+                        this.inFrame.push(tombstone);
+                    }
                 }
             }
         });
-    }
 
-    update(shift) {
-        this.shift = shift;
-        this.inFrame = [];
-        this.locs = []
-
-        this.tombstones.forEach(tombstone => {
-            if (tombstone["position"][0] - this.shift[0] >= -32 && tombstone["position"][0] - this.shift[0] <= canvas.width) {
-                if (tombstone["position"][1] - this.shift[1] >= -32 && tombstone["position"][1] - this.shift[1] <= canvas.height) {
-                    this.locs.push([tombstone["position"][0] - this.shift[0], tombstone["position"][1] - this.shift[1]]);
-                    this.inFrame.push(tombstone);
-                }
-            }
-        });
+        console.log(this.locs);
     }
 
     render(context) {
@@ -324,7 +333,12 @@ class Tombstones {
                 context.filter = "brightness(1.5)";
             }
 
-            context.drawImage(tombstone.src, tombstone["position"][0] - this.shift[0], tombstone["position"][1] - this.shift[1], 64, 64);
+            if (space == "local") {
+                context.drawImage(tombstone.src, tombstone["local_position"][0] - shift[0], tombstone["local_position"][1] - shift[1], 64, 64);
+            } else {
+                context.drawImage(tombstone.src, tombstone["position"][0] - shift[0], tombstone["position"][1] - shift[1], 64, 64);
+            }
+            
             context.restore();
         });
     }
@@ -349,10 +363,12 @@ class Door {
             loadStatsSpace();
         }
 
+        shift = [0, 0];
+        space = this.location;
         tombstones = new Tombstones(tombstoneData);
 
-        space = this.location;
-        spaceTitle = this.location == "local" ? "Local Thoughts" : this.location == "global" ? "Community Graveyard" : "Global Statistics";
+        
+        spaceTitle = this.location == "local" ? "Private Thoughts" : this.location == "global" ? "Community Graveyard" : "Global Statistics";
         terrainPattern = context.createPattern(images.get([`../static/assets/setting/${this.location}.png`]), "repeat");
 
         character.resetPosition(canvas.width / 2 - 32, canvas.height / 2 - 32, "f");
@@ -616,7 +632,7 @@ function main() {
 
 
 // Initialisation function
-function init() {
+async function init() {
     character = new Sprite([
         [
             images.get("../static/assets/character/back/b0.png"),
@@ -645,9 +661,9 @@ function init() {
     ], 10, "f", canvas.width / 2 - 32, canvas.height / 2 - 32);
 
     space = "local";
-    spaceTitle = "Local Thoughts";
+    spaceTitle = "Private Thoughts";
 
-    loadLocalSpace();
+    await loadLocalSpace()
 
     shift = [0, 0];
     tombstones = new Tombstones(tombstoneData);
@@ -716,4 +732,24 @@ let images = new Resources([
 ]);
 
 images.onReady(init);
+
+
+document.getElementById("tombstone-form").addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    let formData = new FormData(event.target);
+    let jsonData = Object.fromEntries(formData);
+
+    jsonData["local_position"] = [character.x - shift[0], character.y - shift[1]];
+
+    let response = await fetch('/api/thoughts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(jsonData)
+    });
+
+    loadLocalSpace();
+    render();
+    hideTombstoneCreator();
+});
 
