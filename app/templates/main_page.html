@@ -2,6 +2,27 @@
 
 {% block head %}
     <style>
+        .tombstone-design input {
+            margin:0;
+            padding:0;
+            appearance: none;
+        }
+
+        .tombstone-design label img {
+            cursor: pointer;
+            filter: brightness(1.0);
+        }
+
+        .tombstone-design input:checked + label img,
+        .tombstone-design label img:hover {
+            filter: brightness(1.5);
+        }
+
+        h3 {
+            padding-bottom: 0;
+            margin-bottom: 0.2em;
+        }
+
         .popup {
             background-color: rgba(0, 0, 0, 0.4);
             display: flex;
@@ -19,18 +40,72 @@
 {% endblock %}
 
 {% block body %}
+    <!-- Add tombstone modal -->
+    <div class="popup hidden" id="tombstone-creation">
+        <div class="card">
+            <form id="tombstone-form">
+                <h1>New Tombstone</h1>
+                <div class="tombstone-design">
+                    <h3>Tombstone Design</h3>
+                    <input type="radio" id="regular-tombstone" value="0" name="tombstone" checked />
+                    <label for="regular-tombstone"><img width="32" height="32" src="../static/assets/tombstones/0.png" alt="regular-tombstone"></label>
+
+                    <input type="radio" id="mushroom" value="1" name="tombstone" />
+                    <label for="mushroom"><img width="32" height="32" src="../static/assets/tombstones/1.png" alt="mushroom"></label>
+
+                    <input type="radio" id="stump" value="2" name="tombstone" />
+                    <label for="stump"><img width="32" height="32" src="../static/assets/tombstones/2.png" alt="stump"></label>
+
+                    <input type="radio" id="apple-tree" value="3" name="tombstone" />
+                    <label for="apple-tree"><img width="32" height="32" src="../static/assets/tombstones/3.png" alt="apple-tree"></label>
+
+                    <input type="radio" id="rose" value="4" name="tombstone" />
+                    <label for="rose"><img width="32" height="32" src="../static/assets/tombstones/4.png" alt="rose"></label>
+
+                    <input type="radio" id="clover" value="5" name="tombstone" />
+                    <label for="clover"><img width="32" height="32" src="../static/assets/tombstones/5.png" alt="clover"></label>
+                </div>
+
+                <label class="block" for="input-title">Title</label>
+                <input type="text" id="input-title" name="title" />
+
+                <label class="block" for="input-content">Content</label>
+                <textarea style="resize: none;" id="input-content" name="content" class="border p-2 w-full mb-2"></textarea>
+                
+                <div>
+                    <input type="radio" name="emotion" id="happy" value="😄" checked>
+                    <label for="happy">😄</label>
+                    <input type="radio" name="emotion" id="sad" value="😢">
+                    <label for="sad">😢</label>
+                    <input type="radio" name="emotion" id="angry" value="😡">
+                    <label for="angry">😡</label>
+                    <input type="radio" name="emotion" id="blank" value="😶">
+                    <label for="blank">😶</label>
+                </div>
+
+                <div>
+                    <h3>Visibility</h3>
+                    <input type="radio" id="private" value="private" name="space" checked />
+                    <label for="private">Private (Default)</label>
+                    <input type="radio" id="occupation" value="occupation" name="space" />
+                    <label for="occupation">Same Occupation</label>
+                    <input type="radio" id="public" value="public" name="space" />
+                    <label for="public">Public</label>
+                </div>
+                <br>
+                <div>
+                    <button type="button" onclick="hideTombstoneCreator()">Cancel</button>
+                    <button type="submit">Submit</button>
+                </div>    
+            </form>
+        </div>
+    </div>
+
     <!-- Tombstone content modal to be populated by current tombstone data -->
     <div class="popup hidden" id="tombstone-content">
         <div class="card" onclick="hideTombstone()">
             <h2 id="tombstone-text"></h2>
             <h2 id="tombstone-likes"></h2>
-        </div>
-    </div>
-
-    <!-- Tombstone creation modal to add data to database -->
-    <div class="popup hidden" id="tombstone-creation">
-        <div class="card">
-            <h2>Nothing here yet</h2>
         </div>
     </div>
 
@@ -73,12 +148,12 @@
         }
 
         function showTombstoneCreator() {
-            document.getElementById("tombstone-content").classList.remove("hidden");
+            document.getElementById("tombstone-creation").classList.remove("hidden");
         }
 
-        function addTombstone(content, type) {
-            // Add tombstone method to be called by canvas
-            document.getElementById("tombstone-content").classList.add("hidden");
+        function hideTombstoneCreator() {
+            document.getElementById("tombstone-form").reset();
+            document.getElementById("tombstone-creation").classList.add("hidden");
         }
 
         async function loadLocalSpace() {
@@ -86,8 +161,6 @@
             let request = await fetch("/api/personal-thoughts");
             
             tombstoneData = await request.json();
-
-            console.log(tombstoneData);
         }
 
         async function loadGlobalSpace() {
@@ -101,7 +174,7 @@
             tombstoneData = [];
         }
 
-        let tombstoneData = []
+        let tombstoneData = [];
     </script>
 
     <!-- Canvas scripts -->

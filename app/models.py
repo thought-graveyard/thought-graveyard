@@ -28,6 +28,7 @@ class Thought(db.Model):
     space = db.Column(db.String(10))
     author = db.Column(db.String(80))
     position = db.Column(db.JSON)
+    local_position = db.Column(db.JSON)
     tombstone = db.Column(db.Integer)
     likes = db.Column(db.JSON)
 
@@ -40,6 +41,7 @@ class Thought(db.Model):
             "space": self.space,
             "author": self.author,
             "position": self.position,
+            "local_position": self.local_position,
             "tombstone": self.tombstone,
             "likes": self.likes
         }
