@@ -66,10 +66,7 @@ def register():
         )
 
         user.set_pw(form.password.data)
-        #create new user
-        user = User(username=username, email=email, fullname=fullname, gender=gender)
-        #hasing the password
-        user.set_pw(password)
+
         #add into database
         db.session.add(user)
         db.session.commit()
