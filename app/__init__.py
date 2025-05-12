@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_wtf import CSRFProtect
 from app.config import Config
 
 app = Flask(__name__, 
@@ -9,6 +10,9 @@ app = Flask(__name__,
 
 #apply set to file
 app.config.from_object(Config)
+
+#enable CSRF protection
+csrf = CSRFProtect(app)
 
 #initiciate database
 db = SQLAlchemy(app)
