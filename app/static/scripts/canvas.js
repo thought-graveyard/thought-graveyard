@@ -208,7 +208,13 @@ class Sprite {
         });
 
         if (!intersection) {
+            if (space == "local") {
+                spaceButton.src = "../static/assets/controls/plus.png";
+            }
+
             this.intersect = null;
+        } else {
+            spaceButton.src = "../static/assets/controls/select.png";
         }
     }
 
@@ -244,12 +250,49 @@ class Input {
     constructor() {
         this.pressed = {};
 
+        [... document.getElementsByClassName("virtual-control")].forEach(button => {
+            let id = button.id == "space" ? " " : button.id;
+
+            // Handle virtual touchpad events
+            button.addEventListener("mousedown", (e) => {
+                const hold = setInterval(() => {
+                    this.setKey(id, "down");
+                }, 50);
+                
+                document.body.addEventListener("mouseup", () => {
+                    clearInterval(hold);
+                    this.setKey(id, "pressed");
+                }, { 
+                    once: true 
+                });
+            });
+
+            // Handle virtual touchpad events on mobile
+            button.addEventListener("touchstart", (e) => {
+                const hold = setInterval(() => {
+                    this.setKey(id, "down");
+                }, 50);
+                
+                document.body.addEventListener("touchend", () => {
+                    clearInterval(hold);
+                    this.setKey(id, "pressed");
+                }, { 
+                    once: true 
+                });
+            });
+
+            // Prevent context menu from appearing on long-press
+            button.addEventListener("contextmenu", (e) => {
+                e.preventDefault();
+            });
+        });
+
         document.addEventListener("keydown", (e) => {
-            this.setKey(e, "down");
+            this.setKey(e.key, "down");
         });
     
         document.addEventListener("keyup", (e) => {
-            this.setKey(e, "pressed");
+            this.setKey(e.key, "pressed");
         });
     
         window.addEventListener("blur", (e) => {
@@ -257,26 +300,27 @@ class Input {
         });
     }
 
-    setKey(event, status) {
-        let code = event.keyCode;
+    setKey(code, status) {
         let key;
 
         switch(code) {
-        case 32:
-            key = 'SPACE'; break;
-        case 37:
-            key = 'LEFT'; break;
-        case 38:
-            key = 'UP'; break;
-        case 39:
-            key = 'RIGHT'; break;
-        case 40:
-            key = 'DOWN'; break;
+        case " ":
+            key = "SPACE"; break;
+        case "ArrowLeft":
+            key = "LEFT"; break;
+        case "ArrowUp":
+            key = "UP"; break;
+        case "ArrowRight":
+            key = "RIGHT"; break;
+        case "ArrowDown":
+            key = "DOWN"; break;
         default:
             key = String.fromCharCode(code);
         }
 
         this.pressed[key] = status;
+
+        console.log(this.pressed);
     }
 
     getStatus(key) {
@@ -300,8 +344,6 @@ class Tombstones {
         this.inFrame = [];
         this.locs = []
 
-        console.log(this.locs, shift);
-
         this.tombstones.forEach(tombstone => {
             tombstone["src"] = images.get(`../static/assets/tombstones/${tombstone.tombstone}.png`);
 
@@ -321,8 +363,6 @@ class Tombstones {
                 }
             }
         });
-
-        console.log(this.locs);
     }
 
     render(context) {
@@ -693,6 +733,7 @@ let doors;
 let tombstones;
 let spaceTitle;
 let space;
+let spaceButton = document.getElementById("space");
 let shift = [0, 0];
 let characterSpeed = 300;
 let input = new Input();
