@@ -24,6 +24,7 @@
         }
 
         .popup {
+            z-index: 100;
             background-color: rgba(0, 0, 0, 0.4);
             display: flex;
             justify-content: center;
@@ -31,6 +32,31 @@
             position: fixed;
             height: 100vh;
             width: 100vw;
+        }
+
+        .gamepad {
+            user-select: none;
+            position: fixed;
+            right: 12px;
+            bottom: 12px;
+            display: grid;
+            gap: 1px;
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .gamepad img {
+            user-select: none;
+            width: 64px;
+            height: 64px;
+            cursor: pointer;
+        }
+
+        .gamepad img:hover {
+            filter: brightness(1.5);
+        }
+
+        .gamepad img:active {
+            transform: translateY(2px);
         }
 
         .hidden {
@@ -48,22 +74,22 @@
                 <div class="tombstone-design">
                     <h3>Tombstone Design</h3>
                     <input type="radio" id="regular-tombstone" value="0" name="tombstone" checked />
-                    <label for="regular-tombstone"><img width="32" height="32" src="../static/assets/tombstones/0.png" alt="regular-tombstone"></label>
+                    <label for="regular-tombstone"><img width="48" height="48" src="../static/assets/tombstones/0.png" alt="regular-tombstone"></label>
 
                     <input type="radio" id="mushroom" value="1" name="tombstone" />
-                    <label for="mushroom"><img width="32" height="32" src="../static/assets/tombstones/1.png" alt="mushroom"></label>
+                    <label for="mushroom"><img width="48" height="48" src="../static/assets/tombstones/1.png" alt="mushroom"></label>
 
                     <input type="radio" id="stump" value="2" name="tombstone" />
-                    <label for="stump"><img width="32" height="32" src="../static/assets/tombstones/2.png" alt="stump"></label>
+                    <label for="stump"><img width="48" height="48" src="../static/assets/tombstones/2.png" alt="stump"></label>
 
                     <input type="radio" id="apple-tree" value="3" name="tombstone" />
-                    <label for="apple-tree"><img width="32" height="32" src="../static/assets/tombstones/3.png" alt="apple-tree"></label>
+                    <label for="apple-tree"><img width="48" height="48" src="../static/assets/tombstones/3.png" alt="apple-tree"></label>
 
                     <input type="radio" id="rose" value="4" name="tombstone" />
-                    <label for="rose"><img width="32" height="32" src="../static/assets/tombstones/4.png" alt="rose"></label>
+                    <label for="rose"><img width="48" height="48" src="../static/assets/tombstones/4.png" alt="rose"></label>
 
                     <input type="radio" id="clover" value="5" name="tombstone" />
-                    <label for="clover"><img width="32" height="32" src="../static/assets/tombstones/5.png" alt="clover"></label>
+                    <label for="clover"><img width="48" height="48" src="../static/assets/tombstones/5.png" alt="clover"></label>
                 </div>
 
                 <label class="block" for="input-title">Title</label>
@@ -107,6 +133,29 @@
             <h2 id="tombstone-text"></h2>
             <h2 id="tombstone-likes"></h2>
         </div>
+    </div>
+
+    <!-- Virtual gamepad controls -->
+    <div class="gamepad">
+        <div class="control"></div>
+        <div class="control">
+            <img draggable="false" class="virtual-control" id="ArrowUp" src="../static/assets/controls/up.png" alt="up">
+        </div>
+        <div class="control"></div>
+        <div class="control">
+            <img draggable="false" class="virtual-control" id="ArrowLeft" src="../static/assets/controls/left.png" alt="left">
+        </div>
+        <div class="control">
+            <img draggable="false" class="virtual-control" id="space" src="../static/assets/controls/select.png" alt="select">
+        </div>
+        <div class="control">
+            <img draggable="false" class="virtual-control" id="ArrowRight" src="../static/assets/controls/right.png" alt="right">
+        </div>
+        <div class="control"></div>
+        <div class="control">
+            <img draggable="false" class="virtual-control" id="ArrowDown" src="../static/assets/controls/down.png" alt="down">
+        </div>
+        <div class="control"></div>
     </div>
 
     <div class="main game-screen" id="main">
