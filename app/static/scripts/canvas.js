@@ -1,4 +1,5 @@
 // Define canvas and state
+let randomTombstones;
 let canvas = document.createElement("canvas");
 let context = canvas.getContext("2d");
 canvas.classList.add("col");
@@ -242,7 +243,9 @@ class Sprite {
     render(context) {
         context.drawImage(this.frame, this.x, this.y, 64, 64);
     }
+    
 }
+
 
 
 // Class to convert input into more easily accessible fromat
@@ -438,7 +441,37 @@ class Door {
         }
     }
 }
+class RandomTombstone {
+    constructor(x, y, type) {
+        this.x = x;
+        this.y = y;
+        this.type = type;
+        this.size = 64;
+        this.src = images.get(`../static/assets/tombstones/${type}.png`);
+    }
+    render(context) {
+        context.drawImage(this.src, this.x - shift[0], this.y - shift[1], this.size, this.size);
+    }
+}
+function spawnRandomTombstones(num, width, height) {
+    let tombstones = [];
+    for (let i = 0; i < num; i++) {
+        let x = Math.random() * (width - 64);
+        let y = Math.random() * (height - 64);
 
+        // 50% chance for 0.png, 10% each for 1-5.png
+        let rand = Math.random();
+        let type;
+        if (rand < 0.4) {
+            type = 0;
+        } else {
+            type = Math.floor(1 + Math.random() * 5); // 1 to 5
+        }
+
+        tombstones.push(new RandomTombstone(x, y, type));
+    }
+    return tombstones;
+}
 
 class PieChart {
     constructor(title, data, x, y, radius) {
@@ -644,6 +677,9 @@ function render() {
         door.render(context);
     });
     
+    if (randomTombstones) {
+    randomTombstones.forEach(tomb => tomb.render(context));
+}
 
     // Set font, render and calculate size of white box behind text
     context.font = "20pt \"Jersey 10\"";
@@ -655,6 +691,8 @@ function render() {
     context.fillText(spaceTitle, canvas.width / 2, 32);
 
     character.render(context);
+
+    
 }
 
 
@@ -673,6 +711,9 @@ function main() {
 
 // Initialisation function
 async function init() {
+
+    randomTombstones = spawnRandomTombstones(40, canvas.width, canvas.height); //number of random tombstones to spawn
+
     character = new Sprite([
         [
             images.get("../static/assets/character/back/b0.png"),
@@ -793,4 +834,3 @@ document.getElementById("tombstone-form").addEventListener("submit", async (even
     render();
     hideTombstoneCreator();
 });
-
