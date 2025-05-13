@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from app import app, db
 from app.models import User, Thought
-from app.forms import RegisterForm
+from app.forms import RegisterForm, LoginForm
 import random
 
 @app.route('/welcome')
@@ -23,14 +23,13 @@ def main():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == 'POST':
-        #if form submit, request 'POST'
-        #Bring ID and password that user input
-        username = request.form.get('username')
-        password = request.form.get('password')
-        #database will be found by user input
-        user = User.query.filter_by(username=username).first()
+    form = LoginForm()
 
+    if form.validate_on_submit():
+        username = form.username.data
+        password = form.password.data
+        
+        user = User.query.filter_by(username=username).first()
         if user and user.check_pw(password):
             #successful log-in
             session['user_id'] = user.id
@@ -41,7 +40,7 @@ def login():
             #fail to log-in
             flash("Your ID and Password are incorrect")
     #request 'GET' or if fail to log-in, it would display log-in page
-    return render_template('login_page.html')
+    return render_template('login_page.html', form=form)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
