@@ -421,6 +421,16 @@ class Door {
         } else {
             loadStatsSpace();
         }
+        shift = [0, 0];
+        space = this.location;
+
+        let tombstoneCount = 40;
+        if (space === "local") {
+        tombstoneCount = 10;
+        }
+        randomTombstones = spawnRandomTombstones(tombstoneCount, canvas.width, canvas.height);
+
+tombstones = new Tombstones(tombstoneData);
 
         shift = [0, 0];
         space = this.location;
@@ -732,41 +742,40 @@ function main() {
     requestAnimationFrame(main)
 }
 
-
+let space;
 // Initialisation function
 async function init() {
-
-    randomTombstones = spawnRandomTombstones(40, canvas.width, canvas.height); //number of random tombstones to spawn
-
-    character = new Sprite([
-        [
-            images.get("../static/assets/character/back/b0.png"),
-            images.get("../static/assets/character/back/b1.png"),
-            images.get("../static/assets/character/back/b2.png"),
-            images.get("../static/assets/character/back/b3.png")
-        ],
-        [
-            images.get("../static/assets/character/front/f0.png"),
-            images.get("../static/assets/character/front/f1.png"),
-            images.get("../static/assets/character/front/f2.png"),
-            images.get("../static/assets/character/front/f3.png")
-        ],
-        [
-            images.get("../static/assets/character/left/l0.png"),
-            images.get("../static/assets/character/left/l1.png"),
-            images.get("../static/assets/character/left/l2.png"),
-            images.get("../static/assets/character/left/l3.png")
-        ],
-        [
-            images.get("../static/assets/character/right/r0.png"),
-            images.get("../static/assets/character/right/r1.png"),
-            images.get("../static/assets/character/right/r2.png"),
-            images.get("../static/assets/character/right/r3.png")
-        ]
-    ], 10, "f", canvas.width / 2 - 32, canvas.height / 2 - 32);
-
     space = "local";
     spaceTitle = "Private Thoughts";
+    let tombstoneCount = 10;
+    randomTombstones = spawnRandomTombstones(tombstoneCount, canvas.width, canvas.height);
+
+character = new Sprite([
+    [
+        images.get("../static/assets/character/back/b0.png"),
+        images.get("../static/assets/character/back/b1.png"),
+        images.get("../static/assets/character/back/b2.png"),
+        images.get("../static/assets/character/back/b3.png")
+    ],
+    [
+        images.get("../static/assets/character/front/f0.png"),
+        images.get("../static/assets/character/front/f1.png"),
+        images.get("../static/assets/character/front/f2.png"),
+        images.get("../static/assets/character/front/f3.png")
+    ],
+    [
+        images.get("../static/assets/character/left/l0.png"),
+        images.get("../static/assets/character/left/l1.png"),
+        images.get("../static/assets/character/left/l2.png"),
+        images.get("../static/assets/character/left/l3.png")
+    ],
+    [
+        images.get("../static/assets/character/right/r0.png"),
+        images.get("../static/assets/character/right/r1.png"),
+        images.get("../static/assets/character/right/r2.png"),
+        images.get("../static/assets/character/right/r3.png")
+    ]
+], 10, "f", canvas.width / 2 - 32, canvas.height / 2 - 32);
 
     await loadLocalSpace()
 
@@ -797,7 +806,6 @@ let character;
 let doors;
 let tombstones;
 let spaceTitle;
-let space;
 let spaceButton = document.getElementById("space");
 let shift = [0, 0];
 let characterSpeed = 300;
