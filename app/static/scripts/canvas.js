@@ -115,40 +115,56 @@ class Sprite {
     }
 
     // Handles keyboard input
-    handleInput(dt, speed) {
-        if (input.getStatus("DOWN") == "down") {
-            this.move("f", speed, dt);
-        }
+handleInput(dt, speed) {
+    if (input.getStatus("DOWN") == "down") {
+        this.move("f", speed, dt);
+    }
 
-        if (input.getStatus("UP") == "down") {
-            this.move("b", speed, dt);
-        }
+    if (input.getStatus("UP") == "down") {
+        this.move("b", speed, dt);
+    }
 
-        if (input.getStatus("LEFT") == "down") {
-            this.move("l", speed, dt);
-        }
+    if (input.getStatus("LEFT") == "down") {
+        this.move("l", speed, dt);
+    }
 
-        if (input.getStatus("RIGHT") == "down") {
-            this.move("r", speed, dt);
-        }
+    if (input.getStatus("RIGHT") == "down") {
+        this.move("r", speed, dt);
+    }
 
-        if (input.getStatus("SPACE") == "pressed") {
-            if (this.intersect != null) {
-                if (this.intersect.toString().slice(0, 4) != "door") {
-                    this.readTombstone();
-                } else {
-                    doors.some(door => {
-                        if (door.location == this.intersect.slice(5)) {
-                            door.changeSpace();
-                            return true;
-                        }
-                    });
-                }    
-            } else if (space == "local") {
-                showTombstoneCreator();
-            }
+    if (input.getStatus("SPACE") == "pressed") {
+        // Interact with random tombstones (only 0.png)
+        let interacted = false;
+        if (randomTombstones) {
+            randomTombstones.forEach(tomb => {
+                if (
+                    tomb.type === 0 &&
+                    tomb.isIntersecting(this.x, this.y)
+                ) {
+                    alert("You interacted with a special tombstone!"); // Replace with your custom logic if desired
+                    interacted = true;
+                }
+            });
+        }
+        if (interacted) return; // Prevent double interaction if a special tombstone was found
+
+        // Existing tombstone/door/creator logic
+        if (this.intersect != null) {
+            if (this.intersect.toString().slice(0, 4) != "door") {
+                this.readTombstone();
+            } else {
+                doors.some(door => {
+                    if (door.location == this.intersect.slice(5)) {
+                        door.changeSpace();
+                        return true;
+                    }
+                });
+            }    
+        } else if (space == "local") {
+            showTombstoneCreator();
         }
     }
+}
 
     move(dir, speed, dt) {
         this.dir = dir;
@@ -452,6 +468,15 @@ class RandomTombstone {
     render(context) {
         context.drawImage(this.src, this.x - shift[0], this.y - shift[1], this.size, this.size);
     }
+    isIntersecting(charX, charY) {
+        // Simple bounding box collision
+        return (
+            charX < this.x + this.size &&
+            charX + 64 > this.x &&
+            charY < this.y + this.size &&
+            charY + 64 > this.y
+        );
+    }
 }
 function spawnRandomTombstones(num, width, height) {
     let tombstones = [];
@@ -668,18 +693,19 @@ function render() {
     
     if (space != "stats") {
         tombstones.render(context);
+
+        // Only render random tombstones if not in stats area
+        if (randomTombstones) {
+            randomTombstones.forEach(tomb => tomb.render(context));
+        }
     } else {
         pie.render(context);
-        bar.render(context)
+        bar.render(context);
     }
     
     doors.forEach(door => {
         door.render(context);
     });
-    
-    if (randomTombstones) {
-    randomTombstones.forEach(tomb => tomb.render(context));
-}
 
     // Set font, render and calculate size of white box behind text
     context.font = "20pt \"Jersey 10\"";
@@ -691,8 +717,6 @@ function render() {
     context.fillText(spaceTitle, canvas.width / 2, 32);
 
     character.render(context);
-
-    
 }
 
 
@@ -834,3 +858,4 @@ document.getElementById("tombstone-form").addEventListener("submit", async (even
     render();
     hideTombstoneCreator();
 });
+
