@@ -43,3 +43,7 @@ class RegisterForm(FlaskForm):
         ('female', 'Female'),
         ('prefer-not-to-say', 'Prefer not to say')
     ])
+
+class LoginForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired()])
+    password = PasswordField('Password', validators=[DataRequired()])

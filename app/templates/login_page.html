@@ -75,17 +75,18 @@
             <h1>Sign In</h1>
             
             <form action="/login" method="POST">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                {{ form.hidden_tag() }}
+
                 <div class="form-group">
                     <label for="username">Username</label>
-                    <input type="text" id="username" name="username">
+                    {{ form.username(class="form-control") }}
                 </div>
 
                 <br>
                 
                 <div class="form-group">
                     <label for="password">Password</label>
-                    <input type="password" id="password" name="password">
+                    {{ form.password(class="form-control") }}
                 </div>
                 
                 <button type="submit">Sign In</button>
