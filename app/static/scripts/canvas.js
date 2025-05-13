@@ -1,4 +1,5 @@
 // Define canvas and state
+let randomTombstones;
 let canvas = document.createElement("canvas");
 let context = canvas.getContext("2d");
 canvas.classList.add("col");
@@ -114,40 +115,63 @@ class Sprite {
     }
 
     // Handles keyboard input
-    handleInput(dt, speed) {
-        if (input.getStatus("DOWN") == "down") {
-            this.move("f", speed, dt);
-        }
+handleInput(dt, speed) {
+    if (input.getStatus("DOWN") == "down") {
+        this.move("f", speed, dt);
+    }
 
-        if (input.getStatus("UP") == "down") {
-            this.move("b", speed, dt);
-        }
+    if (input.getStatus("UP") == "down") {
+        this.move("b", speed, dt);
+    }
 
-        if (input.getStatus("LEFT") == "down") {
-            this.move("l", speed, dt);
-        }
+    if (input.getStatus("LEFT") == "down") {
+        this.move("l", speed, dt);
+    }
 
-        if (input.getStatus("RIGHT") == "down") {
-            this.move("r", speed, dt);
-        }
+    if (input.getStatus("RIGHT") == "down") {
+        this.move("r", speed, dt);
+    }
 
-        if (input.getStatus("SPACE") == "pressed") {
-            if (this.intersect != null) {
-                if (this.intersect.toString().slice(0, 4) != "door") {
-                    this.readTombstone();
-                } else {
-                    doors.some(door => {
-                        if (door.location == this.intersect.slice(5)) {
-                            door.changeSpace();
-                            return true;
-                        }
-                    });
-                }    
-            } else if (space == "local") {
-                showTombstoneCreator();
+    if (input.getStatus("SPACE") == "pressed") {
+    let interacted = false;
+    if (randomTombstones) {
+        randomTombstones.forEach(tomb => {
+            if (
+                space === "global" && tomb.isIntersecting(this.x, this.y)
+            ) {
+                if (tomb.message) {
+                    alert(tomb.message);
+                } else if (tomb.type === 0) {
+                    alert("You interacted with a special tombstone!");
+                }
+                interacted = true;
+            } else if (
+                space !== "global" && tomb.type === 0 && tomb.isIntersecting(this.x, this.y)
+            ) {
+                alert("You interacted with a special tombstone!");
+                interacted = true;
             }
+        });
+    }
+    if (interacted) return; // Prevent double interaction if a special tombstone was found
+
+        // Existing tombstone/door/creator logic
+        if (this.intersect != null) {
+            if (this.intersect.toString().slice(0, 4) != "door") {
+                this.readTombstone();
+            } else {
+                doors.some(door => {
+                    if (door.location == this.intersect.slice(5)) {
+                        door.changeSpace();
+                        return true;
+                    }
+                });
+            }    
+        } else if (space == "local") {
+            showTombstoneCreator();
         }
     }
+}
 
     move(dir, speed, dt) {
         this.dir = dir;
@@ -242,7 +266,9 @@ class Sprite {
     render(context) {
         context.drawImage(this.frame, this.x, this.y, 64, 64);
     }
+    
 }
+
 
 
 // Class to convert input into more easily accessible fromat
@@ -402,10 +428,24 @@ class Door {
         } else {
             loadStatsSpace();
         }
-
         shift = [0, 0];
         space = this.location;
-        tombstones = new Tombstones(tombstoneData);
+
+        let tombstoneCount = 40;
+let messages = [];
+if (space === "local") {
+    tombstoneCount = 10;
+} else if (space === "global") {
+    // Generate unique messages for each tombstone
+    for (let i = 0; i < tombstoneCount; i++) {
+        messages.push(`Global Tombstone #${i + 1}: This is a unique message!`);
+    }
+}
+randomTombstones = spawnRandomTombstones(tombstoneCount, canvas.width, canvas.height, messages);
+
+tombstones = new Tombstones(tombstoneData);
+
+        
 
         
         spaceTitle = this.location == "local" ? "Private Thoughts" : this.location == "global" ? "Community Graveyard" : "Global Statistics";
@@ -438,7 +478,48 @@ class Door {
         }
     }
 }
+class RandomTombstone {
+    constructor(x, y, type, message = null) {
+        this.x = x;
+        this.y = y;
+        this.type = type;
+        this.size = 64;
+        this.src = images.get(`../static/assets/tombstones/${type}.png`);
+        this.message = message;
+    }
+    render(context) {
+        context.drawImage(this.src, this.x - shift[0], this.y - shift[1], this.size, this.size);
+    }
+    isIntersecting(charX, charY) {
+        // Simple bounding box collision
+        return (
+            charX < this.x + this.size &&
+            charX + 64 > this.x &&
+            charY < this.y + this.size &&
+            charY + 64 > this.y
+        );
+    }
+}
+function spawnRandomTombstones(num, width, height, messages = []) {
+    let tombstones = [];
+    for (let i = 0; i < num; i++) {
+        let x = Math.random() * (width - 64);
+        let y = Math.random() * (height - 64);
 
+        // 40% chance for 0.png, 12% each for 1-5.png
+        let rand = Math.random();
+        let type;
+        if (rand < 0.4) {
+            type = 0;
+        } else {
+            type = Math.floor(1 + Math.random() * 5); // 1 to 5
+        }
+
+        let message = messages[i] || null;
+        tombstones.push(new RandomTombstone(x, y, type, message));
+    }
+    return tombstones;
+}
 
 class PieChart {
     constructor(title, data, x, y, radius) {
@@ -635,15 +716,19 @@ function render() {
     
     if (space != "stats") {
         tombstones.render(context);
+
+        // Only render random tombstones if not in stats area
+        if (randomTombstones) {
+            randomTombstones.forEach(tomb => tomb.render(context));
+        }
     } else {
         pie.render(context);
-        bar.render(context)
+        bar.render(context);
     }
     
     doors.forEach(door => {
         door.render(context);
     });
-    
 
     // Set font, render and calculate size of white box behind text
     context.font = "20pt \"Jersey 10\"";
@@ -670,38 +755,40 @@ function main() {
     requestAnimationFrame(main)
 }
 
-
+let space;
 // Initialisation function
 async function init() {
-    character = new Sprite([
-        [
-            images.get("../static/assets/character/back/b0.png"),
-            images.get("../static/assets/character/back/b1.png"),
-            images.get("../static/assets/character/back/b2.png"),
-            images.get("../static/assets/character/back/b3.png")
-        ],
-        [
-            images.get("../static/assets/character/front/f0.png"),
-            images.get("../static/assets/character/front/f1.png"),
-            images.get("../static/assets/character/front/f2.png"),
-            images.get("../static/assets/character/front/f3.png")
-        ],
-        [
-            images.get("../static/assets/character/left/l0.png"),
-            images.get("../static/assets/character/left/l1.png"),
-            images.get("../static/assets/character/left/l2.png"),
-            images.get("../static/assets/character/left/l3.png")
-        ],
-        [
-            images.get("../static/assets/character/right/r0.png"),
-            images.get("../static/assets/character/right/r1.png"),
-            images.get("../static/assets/character/right/r2.png"),
-            images.get("../static/assets/character/right/r3.png")
-        ]
-    ], 10, "f", canvas.width / 2 - 32, canvas.height / 2 - 32);
-
     space = "local";
     spaceTitle = "Private Thoughts";
+    let tombstoneCount = 10;
+    randomTombstones = spawnRandomTombstones(tombstoneCount, canvas.width, canvas.height);
+
+character = new Sprite([
+    [
+        images.get("../static/assets/character/back/b0.png"),
+        images.get("../static/assets/character/back/b1.png"),
+        images.get("../static/assets/character/back/b2.png"),
+        images.get("../static/assets/character/back/b3.png")
+    ],
+    [
+        images.get("../static/assets/character/front/f0.png"),
+        images.get("../static/assets/character/front/f1.png"),
+        images.get("../static/assets/character/front/f2.png"),
+        images.get("../static/assets/character/front/f3.png")
+    ],
+    [
+        images.get("../static/assets/character/left/l0.png"),
+        images.get("../static/assets/character/left/l1.png"),
+        images.get("../static/assets/character/left/l2.png"),
+        images.get("../static/assets/character/left/l3.png")
+    ],
+    [
+        images.get("../static/assets/character/right/r0.png"),
+        images.get("../static/assets/character/right/r1.png"),
+        images.get("../static/assets/character/right/r2.png"),
+        images.get("../static/assets/character/right/r3.png")
+    ]
+], 10, "f", canvas.width / 2 - 32, canvas.height / 2 - 32);
 
     await loadLocalSpace()
 
@@ -732,7 +819,6 @@ let character;
 let doors;
 let tombstones;
 let spaceTitle;
-let space;
 let spaceButton = document.getElementById("space");
 let shift = [0, 0];
 let characterSpeed = 300;
@@ -793,4 +879,6 @@ document.getElementById("tombstone-form").addEventListener("submit", async (even
     render();
     hideTombstoneCreator();
 });
+
+
 
