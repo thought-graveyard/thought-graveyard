@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from app import app, db
 from app.models import User, Thought
-from app.forms import RegisterForm, LoginForm
+from app.forms import RegisterForm, LoginForm, ThoughtForm
 import random
 
 @app.route('/welcome')
@@ -16,10 +16,13 @@ def landing():
 
 @app.route('/')
 def main():
+    form = ThoughtForm()
+    
     if session.get("user_id") == None:
         return redirect("/welcome")
 
-    return render_template('main_page.html')
+    return render_template('main_page.html', form = form)
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -42,6 +45,7 @@ def login():
     #request 'GET' or if fail to log-in, it would display log-in page
     return render_template('login_page.html', form=form)
 
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegisterForm() 
@@ -53,7 +57,7 @@ def register():
         ).first()
         
         if exist_user:
-            flash("Your name or email have been using.")
+            flash("Your name or email is already in use.")
             return render_template('register_page.html', form=form)
         
         user = User(
@@ -74,6 +78,7 @@ def register():
         return redirect('/login')
     
     return render_template('register_page.html', form=form)
+
 
 @app.route('/logout')
 def logout():
@@ -109,7 +114,9 @@ def personal_thoughts():
 
 @app.route('/api/thoughts', methods=['POST'])
 def add_thought():
-    if session.get("user_id") != None:
+    form = ThoughtForm()
+
+    if session.get("user_id") != None and form.validate_on_submit():
         data = request.json
 
         position = [
@@ -133,13 +140,16 @@ def add_thought():
                 if shift == 3:
                     position[0] -= 1000
 
+        # Get occupation from User table
+        occupation = User.query.filter_by(id = session.get("user_id")).all()[0].occupation
+
         new_thought = Thought(
-            title = data.get("title"),
-            content = data.get("content"),
-            emotions = data.get("emotions", []),
-            space = data.get("space"),
+            title = form.title.data,
+            content = form.content.data,
+            emotions = form.emotion.data,
+            space = occupation if form.space.data == "occupation" else form.space.data,
             author = session.get("user_id"),
-            tombstone = data.get("tombstone"),
+            tombstone = form.tombstone.data,
             local_position = data.get("local_position"),
             position = position,
             likes = 1

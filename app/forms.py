@@ -44,6 +44,46 @@ class RegisterForm(FlaskForm):
         ('prefer-not-to-say', 'Prefer not to say')
     ])
 
+
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
+
+
+class ThoughtForm(FlaskForm):
+    tombstone = RadioField(
+        "Design",
+        choices = [
+            ("0", "../static/assets/tombstones/0.png"),
+            ("1", "../static/assets/tombstones/1.png"),
+            ("2", "../static/assets/tombstones/2.png"),
+            ("3", "../static/assets/tombstones/3.png"),
+            ("4", "../static/assets/tombstones/4.png"),
+            ("5", "../static/assets/tombstones/5.png")
+        ],
+        default = "0"
+    )
+
+    title = StringField("Title", validators=[DataRequired()])
+    content = StringField("Content", validators=[DataRequired()])
+
+    emotion = RadioField(
+        "Emotion",
+        choices = [
+            ("😄", "😄"),
+            ("😢", "😢"),
+            ("😡", "😡"),
+            ("😶", "😶")
+        ],
+        default = "😄"
+    )
+
+    space = RadioField(
+        "Visibility",
+        choices = [
+            ("private", "Private (Default)"),
+            ("occupation", "Same Occupation"),
+            ("public", "Public")
+        ],
+        default = "private"
+    )

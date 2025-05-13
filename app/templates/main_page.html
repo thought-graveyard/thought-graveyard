@@ -70,59 +70,47 @@
     <div class="popup hidden" id="tombstone-creation">
         <div class="card">
             <form id="tombstone-form">
+                {{ form.hidden_tag() }}
                 <h1>New Tombstone</h1>
                 <div class="tombstone-design">
                     <h3>Tombstone Design</h3>
-                    <input type="radio" id="regular-tombstone" value="0" name="tombstone" checked />
-                    <label for="regular-tombstone"><img width="48" height="48" src="../static/assets/tombstones/0.png" alt="regular-tombstone"></label>
-
-                    <input type="radio" id="mushroom" value="1" name="tombstone" />
-                    <label for="mushroom"><img width="48" height="48" src="../static/assets/tombstones/1.png" alt="mushroom"></label>
-
-                    <input type="radio" id="stump" value="2" name="tombstone" />
-                    <label for="stump"><img width="48" height="48" src="../static/assets/tombstones/2.png" alt="stump"></label>
-
-                    <input type="radio" id="apple-tree" value="3" name="tombstone" />
-                    <label for="apple-tree"><img width="48" height="48" src="../static/assets/tombstones/3.png" alt="apple-tree"></label>
-
-                    <input type="radio" id="rose" value="4" name="tombstone" />
-                    <label for="rose"><img width="48" height="48" src="../static/assets/tombstones/4.png" alt="rose"></label>
-
-                    <input type="radio" id="clover" value="5" name="tombstone" />
-                    <label for="clover"><img width="48" height="48" src="../static/assets/tombstones/5.png" alt="clover"></label>
+                    {% for subfield in form.tombstone %}
+                        {{ subfield }}
+                        <label for="{{ subfield.id }}">
+                            <img width="48" height="48" src="{{ subfield.label.text }}" alt="{{ subfield.label.text|replace('../static/assets/tombstones/', '')|replace('.png', '') }}"></label>
+                    {% endfor %}
                 </div>
-
-                <label class="block" for="input-title">Title</label>
-                <input type="text" id="input-title" name="title" />
-
-                <label class="block" for="input-content">Content</label>
-                <textarea style="resize: none;" id="input-content" name="content" class="border p-2 w-full mb-2"></textarea>
-                
+            
+                <label class="block" for="{{ form.title.id }}">Title</label>
+                {{ form.title }}
+                {% if form.title.errors %}
+                    <ul class="errors">
+                    {% for error in form.title.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                    </ul>
+                {% endif %}
+            
+                <label class="block" for="{{ form.content.id }}">Content</label>
+                {{ form.content(style="resize: none;", class="border p-2 w-full mb-2") }}
+            
                 <div>
-                    <input type="radio" name="emotion" id="happy" value="😄" checked>
-                    <label for="happy">😄</label>
-                    <input type="radio" name="emotion" id="sad" value="😢">
-                    <label for="sad">😢</label>
-                    <input type="radio" name="emotion" id="angry" value="😡">
-                    <label for="angry">😡</label>
-                    <input type="radio" name="emotion" id="blank" value="😶">
-                    <label for="blank">😶</label>
+                    {% for subfield in form.emotion %}
+                        {{ subfield }} {{ subfield.label }}
+                    {% endfor %}
                 </div>
-
+            
                 <div>
                     <h3>Visibility</h3>
-                    <input type="radio" id="private" value="private" name="space" checked />
-                    <label for="private">Private (Default)</label>
-                    <input type="radio" id="occupation" value="occupation" name="space" />
-                    <label for="occupation">Same Occupation</label>
-                    <input type="radio" id="public" value="public" name="space" />
-                    <label for="public">Public</label>
+                    {% for subfield in form.space %}
+                        {{ subfield }} {{ subfield.label }}
+                    {% endfor %}
                 </div>
                 <br>
                 <div>
                     <button type="button" onclick="hideTombstoneCreator()">Cancel</button>
                     <button type="submit">Submit</button>
-                </div>    
+                </div>
             </form>
         </div>
     </div>

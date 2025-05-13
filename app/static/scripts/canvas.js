@@ -780,12 +780,16 @@ document.getElementById("tombstone-form").addEventListener("submit", async (even
 
     let formData = new FormData(event.target);
     let jsonData = Object.fromEntries(formData);
+    let csrfToken = document.querySelector('input[name="csrf_token"]').value;
 
     jsonData["local_position"] = [character.x - shift[0], character.y - shift[1]];
 
     let response = await fetch('/api/thoughts', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
         body: JSON.stringify(jsonData)
     });
 
