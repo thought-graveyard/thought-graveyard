@@ -133,20 +133,27 @@ handleInput(dt, speed) {
     }
 
     if (input.getStatus("SPACE") == "pressed") {
-        // Interact with random tombstones (only 0.png)
-        let interacted = false;
-        if (randomTombstones) {
-            randomTombstones.forEach(tomb => {
-                if (
-                    tomb.type === 0 &&
-                    tomb.isIntersecting(this.x, this.y)
-                ) {
-                    alert("You interacted with a special tombstone!"); // Replace with your custom logic if desired
-                    interacted = true;
+    let interacted = false;
+    if (randomTombstones) {
+        randomTombstones.forEach(tomb => {
+            if (
+                space === "global" && tomb.isIntersecting(this.x, this.y)
+            ) {
+                if (tomb.message) {
+                    alert(tomb.message);
+                } else if (tomb.type === 0) {
+                    alert("You interacted with a special tombstone!");
                 }
-            });
-        }
-        if (interacted) return; // Prevent double interaction if a special tombstone was found
+                interacted = true;
+            } else if (
+                space !== "global" && tomb.type === 0 && tomb.isIntersecting(this.x, this.y)
+            ) {
+                alert("You interacted with a special tombstone!");
+                interacted = true;
+            }
+        });
+    }
+    if (interacted) return; // Prevent double interaction if a special tombstone was found
 
         // Existing tombstone/door/creator logic
         if (this.intersect != null) {
@@ -425,16 +432,20 @@ class Door {
         space = this.location;
 
         let tombstoneCount = 40;
-        if (space === "local") {
-        tombstoneCount = 10;
-        }
-        randomTombstones = spawnRandomTombstones(tombstoneCount, canvas.width, canvas.height);
+let messages = [];
+if (space === "local") {
+    tombstoneCount = 10;
+} else if (space === "global") {
+    // Generate unique messages for each tombstone
+    for (let i = 0; i < tombstoneCount; i++) {
+        messages.push(`Global Tombstone #${i + 1}: This is a unique message!`);
+    }
+}
+randomTombstones = spawnRandomTombstones(tombstoneCount, canvas.width, canvas.height, messages);
 
 tombstones = new Tombstones(tombstoneData);
 
-        shift = [0, 0];
-        space = this.location;
-        tombstones = new Tombstones(tombstoneData);
+        
 
         
         spaceTitle = this.location == "local" ? "Private Thoughts" : this.location == "global" ? "Community Graveyard" : "Global Statistics";
@@ -468,12 +479,13 @@ tombstones = new Tombstones(tombstoneData);
     }
 }
 class RandomTombstone {
-    constructor(x, y, type) {
+    constructor(x, y, type, message = null) {
         this.x = x;
         this.y = y;
         this.type = type;
         this.size = 64;
         this.src = images.get(`../static/assets/tombstones/${type}.png`);
+        this.message = message;
     }
     render(context) {
         context.drawImage(this.src, this.x - shift[0], this.y - shift[1], this.size, this.size);
@@ -488,13 +500,13 @@ class RandomTombstone {
         );
     }
 }
-function spawnRandomTombstones(num, width, height) {
+function spawnRandomTombstones(num, width, height, messages = []) {
     let tombstones = [];
     for (let i = 0; i < num; i++) {
         let x = Math.random() * (width - 64);
         let y = Math.random() * (height - 64);
 
-        // 50% chance for 0.png, 10% each for 1-5.png
+        // 40% chance for 0.png, 12% each for 1-5.png
         let rand = Math.random();
         let type;
         if (rand < 0.4) {
@@ -503,7 +515,8 @@ function spawnRandomTombstones(num, width, height) {
             type = Math.floor(1 + Math.random() * 5); // 1 to 5
         }
 
-        tombstones.push(new RandomTombstone(x, y, type));
+        let message = messages[i] || null;
+        tombstones.push(new RandomTombstone(x, y, type, message));
     }
     return tombstones;
 }
@@ -866,4 +879,6 @@ document.getElementById("tombstone-form").addEventListener("submit", async (even
     render();
     hideTombstoneCreator();
 });
+
+
 
