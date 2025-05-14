@@ -1,6 +1,7 @@
 #import functions from flask   
 from flask import render_template, redirect, request, session,url_for,flash, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm.attributes import flag_modified
 from flask_cors import CORS
 from app import app, db
 from app.models import User, Thought
@@ -21,7 +22,7 @@ def main():
     if session.get("user_id") == None:
         return redirect("/welcome")
 
-    return render_template('main_page.html', form = form)
+    return render_template('main_page.html', form = form, user_id = session["user_id"])
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -42,8 +43,12 @@ def login():
         else:
             #fail to log-in
             flash("Your ID and Password are incorrect")
-    #request 'GET' or if fail to log-in, it would display log-in page
-    return render_template('login_page.html', form=form)
+
+    elif session.get("user_id") == None:
+        #request 'GET' then it would display log-in page
+        return render_template('login_page.html', form=form)
+    else:
+        return redirect("/")
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -77,7 +82,11 @@ def register():
         flash("Complete your join. please log-in")
         return redirect('/login')
     
-    return render_template('register_page.html', form=form)
+    elif session.get("user_id") == None:
+        #request 'GET' then it would display log-in page
+        return render_template('register_page.html', form=form)
+    else:
+        return redirect("/")
 
 
 @app.route('/logout')
@@ -98,8 +107,11 @@ def personal():
 @app.route('/api/public-thoughts')
 def public_thoughts():
     if session.get("user_id") != None:
-        thoughts = Thought.query.filter_by(space = "public").all()
-        return jsonify([t.to_dict() for t in thoughts])
+        user = User.query.filter_by(id = session.get("user_id"))[0]
+        public_thoughts = Thought.query.filter_by(space = "public").all()
+        occupation_thoughts = Thought.query.filter_by(space = user.occupation).all()
+        
+        return jsonify([t.to_dict() for t in public_thoughts] + [t.to_dict() for t in occupation_thoughts])
     
     return "Invalid permissions to view thoughts", 403
 
@@ -174,7 +186,7 @@ def add_thought():
             tombstone = form.tombstone.data,
             local_position = data.get("local_position"),
             position = position,
-            likes = 1
+            likes = [session.get("user_id")]
         )
 
         db.session.add(new_thought)
@@ -198,18 +210,22 @@ def delete_thought(thought_id):
     return "Failed to delete thought", 403
 
 
-@app.route('/api/thoughts/<int:thought_id>', methods=['POST'])
+@app.route('/api/thoughts/<int:thought_id>', methods=['UPDATE'])
 def like_thought(thought_id):
     if session.get("user_id") != None:
-        thought = Thought.query.get(thought_id)
+        thought = db.session.query(Thought).get(thought_id)
 
         if thought:
-            if session.get("user_id") not in thought.to_dict()["likes"]:
-                thought.likes.append(session.get("user_id"))
+            if session.get("user_id") not in thought.likes:
+                thought.likes += [session.get("user_id")]
             else:
                 thought.likes.remove(session.get("user_id"))
+
+            # Flask cannot tell that list is edited, so explicity flag likes
+            flag_modified(thought, 'likes')
             
             db.session.commit()
-            return "Successfully deleted thought", 204
+
+            return db.session.query(Thought).get(thought_id).to_dict(), 200
     
-    return "Failed to like thought", 403
+    return {}, 403

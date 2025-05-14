@@ -62,6 +62,29 @@
         .hidden {
             display: none !important;
         }
+
+        .blank {
+            margin-inline: auto;
+            background-color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+
+        .blank img {
+            width: 26px;
+            height: 24px;
+            margin-inline: 0.2em;
+        }
+
+        .blank h2 {
+            margin-inline: 0.2em;
+        }
+
+        .blank:hover {
+            background-color: transparent;
+        }
     </style>
 {% endblock %}
 
@@ -116,10 +139,11 @@
     </div>
 
     <!-- Tombstone content modal to be populated by current tombstone data -->
-    <div class="popup hidden" id="tombstone-content">
-        <div class="card" onclick="hideTombstone()">
+    <div class="popup hidden" onclick="hideTombstone()" id="tombstone-content">
+        <div onclick="event.stopPropagation()" class="card">
+            <h1 id="tombstone-title"></h1>
             <h2 id="tombstone-text"></h2>
-            <h2 id="tombstone-likes"></h2>
+            <button id="like-button" class="blank"><img id="like-button-img" src="../static/assets/buttons/like.png" alt="like"><h2 id="tombstone-likes"></h2></button>
         </div>
     </div>
 
@@ -161,10 +185,10 @@
                 </div>
                 <ul id="search-results" class="text-sm space-y-2 mt-4"></ul>
                 <div style="margin-bottom: 1em;">
-                <form action="/logout" method="get">
-                    <button type="submit" style="width:100%;">Logout</button>
-                </form>
-            </div>
+                    <form action="/logout" method="get">
+                        <button type="submit" style="width:100%;">Logout</button>
+                    </form>
+                </div>
             </div>
         </div>    
     </div>
@@ -172,6 +196,7 @@
     <!-- DOM and Flask scripts -->
     <script>
         function displayTombstone(id) {
+            tombStoneId = id;
             let tombstone;
 
             tombstoneData.forEach(stone => {
@@ -180,8 +205,15 @@
                 }
             });
 
+            if (tombstone.likes.includes(sessionData.user_id)) {
+                document.getElementById("like-button-img").src = "../static/assets/buttons/liked.png";
+            } else {
+                document.getElementById("like-button-img").src = "../static/assets/buttons/like.png";
+            }
+
+            document.getElementById("tombstone-title").textContent = tombstone.title;
             document.getElementById("tombstone-text").textContent = tombstone.content;
-            document.getElementById("tombstone-likes").textContent = `${tombstone.likes} likes`;
+            document.getElementById("tombstone-likes").textContent = tombstone.likes.length;
             document.getElementById("tombstone-content").classList.remove("hidden");
         }
 
@@ -199,39 +231,81 @@
         }
 
         async function loadLocalSpace() {
-        try {
-            // Load only local thoughts
-            let request = await fetch("/api/personal-thoughts");
-            
-            if (!request.ok) {
-                throw new Error(`HTTP error: ${request.status}`);
-            }
-            
-            tombstoneData = await request.json();
-        } catch (error) {
-            // User-friendly error message
-            const errorMessage = document.createElement("div");
-            errorMessage.className = "error-message bg-red-100 p-2 rounded text-red-700 mb-4";
-            errorMessage.textContent = "Unable to load your thoughts. Please try again later.";
-            
-            document.querySelector(".sidebar").appendChild(errorMessage);
-            
-            // Fallback to empty data
-            tombstoneData = [];
+            try {
+                // Load only local thoughts
+                let request = await fetch("/api/personal-thoughts");
+                
+                if (!request.ok) {
+                    throw new Error(`HTTP error: ${request.status}`);
+                }
+                
+                tombstoneData = await request.json();
+            } catch (error) {
+                // User-friendly error message
+                const errorMessage = document.createElement("div");
+                errorMessage.className = "error-message bg-red-100 p-2 rounded text-red-700 mb-4";
+                errorMessage.textContent = "Unable to load your thoughts. Please try again later.";
+                
+                document.querySelector(".sidebar").appendChild(errorMessage);
+                
+                // Fallback to empty data
+                tombstoneData = [];
             }
         }
 
         async function loadGlobalSpace() {
-            // Load all thoughts
-            let request = await fetch("/api/public-thoughts");
+            try {
+                // Load all thoughts
+                let request = await fetch("/api/public-thoughts");
             
-            tombstoneData = await request.json();
+                if (!request.ok) {
+                    throw new Error(`HTTP error: ${request.status}`);
+                }
+                
+                tombstoneData = await request.json();
+            } catch (error) {
+                // User-friendly error message
+                const errorMessage = document.createElement("div");
+                errorMessage.className = "error-message bg-red-100 p-2 rounded text-red-700 mb-4";
+                errorMessage.textContent = "Unable to load your thoughts. Please try again later.";
+                
+                document.querySelector(".sidebar").appendChild(errorMessage);
+                
+                // Fallback to empty data
+                tombstoneData = [];
+            }
         }
 
         function loadStatsSpace() {
             tombstoneData = [];
         }
 
+        const sessionData = {
+            user_id: {{ user_id }} 
+        };
+
+        document.getElementById("like-button").addEventListener("click", async (event) => {
+            let csrfToken = document.querySelector('input[name="csrf_token"]').value;
+        
+            let res = await fetch(`/api/thoughts/${tombStoneId}`, {
+                method: 'UPDATE',
+                headers: {
+                    'X-CSRFToken': csrfToken
+                }
+            });
+
+            tombstone = await res.json();
+        
+            if (tombstone.likes.includes(sessionData.user_id)) {
+                document.getElementById("like-button-img").src = "../static/assets/buttons/liked.png";
+            } else {
+                document.getElementById("like-button-img").src = "../static/assets/buttons/like.png";
+            }
+
+            document.getElementById("tombstone-likes").textContent = tombstone.likes.length;
+        });
+
+        let tombStoneId;
         let tombstoneData = [];
     </script>
 

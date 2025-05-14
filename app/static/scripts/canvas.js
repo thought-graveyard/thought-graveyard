@@ -416,8 +416,7 @@ class Door {
         tombstones = new Tombstones(tombstoneData);
 
         
-        spaceTitle = this.location == "local" ? "Private Thoughts" : this.location == "global" ? "Community Graveyard" : "Global Statistics";
-        terrainPattern = context.createPattern(images.get([`../static/assets/setting/${this.location}.png`]), "repeat");
+        spaceTitle = this.location == "local" ? "My Thoughts" : this.location == "global" ? "Community Graveyard" : "Global Statistics";
 
         character.resetPosition(canvas.width / 2 - 32, canvas.height / 2 - 32, "f");
         character.calculateIntersection();
@@ -927,6 +926,13 @@ function render() {
         });
     }
 
+    // Character
+    renderables.push({
+        type: "character",
+        y: character.y + 64,
+        obj: character
+    });
+
     // Tombstones
     if (space != "stats") {
         tombstones.inFrame.forEach((tombstone, i) => {
@@ -949,13 +955,6 @@ function render() {
                 obj: door
             });
         }
-    });
-
-    // Character
-    renderables.push({
-        type: "character",
-        y: character.y + 64,
-        obj: character
     });
 
     // Sort by y (ascending)
@@ -998,6 +997,8 @@ function render() {
             context.globalAlpha = 0.85;
             context.drawImage(plant.img, plant.x - shift[0], plant.y - shift[1], plant.size, plant.size);
             context.restore();
+        } else if (item.type === "character") {
+            item.obj.render(context);
         } else if (item.type === "tombstone") {
             const tombstone = item.obj;
             context.save();
@@ -1008,8 +1009,6 @@ function render() {
             context.drawImage(tombstone.src, item.pos[0] - shift[0], item.pos[1] - shift[1], 64, 64);
             context.restore();
         } else if (item.type === "door") {
-            item.obj.render(context);
-        } else if (item.type === "character") {
             item.obj.render(context);
         }
     });
@@ -1074,7 +1073,7 @@ async function init() {
     ], 10, "f", canvas.width / 2 - 32, canvas.height / 2 - 32); // spawn higher up (was -32)
 
     space = "local";
-    spaceTitle = "Private Thoughts";
+    spaceTitle = "My Thoughts";
 
     await loadLocalSpace()
 
@@ -1091,8 +1090,6 @@ async function init() {
         new Door(canvas.width - 64, canvas.height / 2 + 16, "local", "stats"),
         new Door(canvas.width - 64, canvas.height / 2 - 80, "global", "stats"),
     ];
-
-    terrainPattern = context.createPattern(images.get(["../static/assets/setting/local.png"]), "repeat");
 
     prevTime = Date.now();
     main();
@@ -1116,9 +1113,6 @@ let pie = new PieChart("Likes Per Category", example, 200, 200, 80);
 let bar = new BarChart("Likes Per Category", example, 600, 200, 80);
 
 let images = new Resources([
-    "../static/assets/setting/global.png",
-    "../static/assets/setting/local.png",
-    "../static/assets/setting/stats.png",
     "../static/assets/character/back/b0.png",
     "../static/assets/character/back/b1.png",
     "../static/assets/character/back/b2.png",
@@ -1248,4 +1242,3 @@ document.getElementById("tombstone-form").addEventListener("submit", async (even
     render();
     hideTombstoneCreator();
 });
-
