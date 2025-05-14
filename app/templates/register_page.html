@@ -1,210 +1,201 @@
 {% extends "layout.html" %}
 
 {% block head %}
-  <title>Registration Form</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/register.css') }}">
+    <title>Register | Thought Graveyard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/register.css') }}">
 {% endblock %}
 
 
 {% block body %}
-  <div class="container stone">
-    <div class="card">
-    <!-- Title session -->
-    <div class="title">Registration</div>
-    <div class="content">
-      <!-- Register form -->
-      <form action="/register" method="POST" id="registerForm">
-        {{ form.csrf_token }}
-        <div class="user-details">
-          <!-- Put the name -->
-          <div class="input-box">
-            <span class="details">Full Name</span>
-            <input type="text" name="fullname" placeholder="Enter your name" required>
-          </div>
-          <!-- Username -->
-          <div class="input-box">
-            <span class="details">Username</span>
-            <input type="text" name="username" placeholder="Enter your username" required>
-          </div>
-          <!-- Email -->
-          <div class="input-box">
-            <span class="details">Email</span>
-            <input type="email" name="email" placeholder="Enter your email" required>
-          </div>
-          <div class="input-box">
-            <span class="details">Select occupation</span>
-            <select name="occupation" id="occupation-select" required>
-              <option value="" selected disabled>Select your occupation</option>
-              <option value="student">Student</option>
-              <option value="technology">Technology & IT</option>
-              <option value="healthcare">Healthcare</option>
-              <option value="business">Business & Finance</option>
-              <option value="education">Education</option>
-              <option value="arts">Arts & Creative</option>
-              <option value="service">Service Industry</option>
-              <option value="science">Science & Research</option>
-              <option value="trades">Trades & Manual Labor</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-          <!-- Put the password -->
-          <div class="input-box">
-            <span class="details">Password</span>
-            <input type="password" id="password" name="password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" placeholder="Enter your password" required>
-          </div>
-          <!-- Check password -->
-          <div class="input-box">
-            <span class="details">Confirm Password</span>
-            <input type="password" id="confirm_password" name="confirm_password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" placeholder="Confirm your password" required>
-          </div>
+    <div class="container stone">
+        <div class="card">
+        <!-- Title session -->
+        <div class="title">Registration</div>
+        <div class="content">
+            <!-- Register form -->
+            <form action="/register" method="POST" id="registerForm">
+                {{ form.csrf_token }}
+                <div class="user-details">
+                    <!-- Put the name -->
+                    <div class="input-box">
+                        <span class="details">Full Name</span>
+                        <input type="text" name="fullname" placeholder="Enter your name" required>
+                    </div>
+                    <!-- Username -->
+                    <div class="input-box">
+                        <span class="details">Username</span>
+                        <input type="text" name="username" placeholder="Enter your username" required>
+                    </div>
+                    <!-- Email -->
+                    <div class="input-box">
+                        <span class="details">Email</span>
+                        <input type="email" name="email" placeholder="Enter your email" required>
+                    </div>
+                    <div class="input-box">
+                        <span class="details">Select occupation</span>
+                        <select name="occupation" id="occupation-select" required>
+                            <option value="" selected disabled>Select your occupation</option>
+                            <option value="student">Student</option>
+                            <option value="technology">Technology & IT</option>
+                            <option value="healthcare">Healthcare</option>
+                            <option value="business">Business & Finance</option>
+                            <option value="education">Education</option>
+                            <option value="arts">Arts & Creative</option>
+                            <option value="service">Service Industry</option>
+                            <option value="science">Science & Research</option>
+                            <option value="trades">Trades & Manual Labor</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <!-- Put the password -->
+                    <div class="input-box">
+                        <span class="details">Password</span>
+                        <input type="password" id="password" name="password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" placeholder="Enter your password" required>
+                    </div>
+                    <!-- Check password -->
+                    <div class="input-box">
+                        <span class="details">Confirm Password</span>
+                        <input type="password" id="confirm_password" name="confirm_password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" placeholder="Confirm your password" required>
+                    </div>
+                </div>
+                <div id="msg" style="display: none;">
+                    <h3>Password must contain the following:</h3>
+                    <p id="letter" class="invalid">A <b>lowercase</b> letter</p>
+                    <p id="capital" class="invalid">A <b>capital (uppercase)</b> letter</p>
+                    <p id="number" class="invalid">A <b>number</b></p>
+                    <p id="length" class="invalid">Minimum <b>8 characters</b></p>
+                    <p id="match" class="invalid">Passwords must <b>match</b></p>
+                </div>
+                <div class="gender-details">
+                    <!-- Choose Gender-->
+                    <input type="radio" name="gender" id="dot-1" value="male">
+                    <input type="radio" name="gender" id="dot-2" value="female">
+                    <input type="radio" name="gender" id="dot-3" value="prefer-not-to-say">
+                    <span class="gender-title">Gender</span>
+                    <div class="category">
+                        <!-- Male gender label -->
+                        <label for="dot-1">
+                            <span class="dot one"></span>
+                            <span class="gender">Male</span>
+                        </label>
+                        <!-- Female gender label -->
+                        <label for="dot-2">
+                            <span class="dot two"></span>
+                            <span class="gender">Female</span>
+                        </label>
+                        <!-- Private label -->
+                        <label for="dot-3">
+                            <span class="dot three"></span>
+                            <span class="gender">Prefer not to say</span>
+                        </label>
+                    </div>
+                </div>
+                <!-- Submit button-->
+                <div class="button">
+                    <input type="submit" value="Register">
+                </div>
+            </form>
         </div>
-        <div id="msg" style="display: none;">
-          <h3>Password must contain the following:</h3>
-          <p id="letter" class="invalid">A <b>lowercase</b> letter</p>
-          <p id="capital" class="invalid">A <b>capital (uppercase)</b> letter</p>
-          <p id="number" class="invalid">A <b>number</b></p>
-          <p id="length" class="invalid">Minimum <b>8 characters</b></p>
-          <p id="match" class="invalid">Passwords must <b>match</b></p>
         </div>
-        <div class="gender-details">
-          <!-- Choose Gender-->
-          <input type="radio" name="gender" id="dot-1" value="male">
-          <input type="radio" name="gender" id="dot-2" value="female">
-          <input type="radio" name="gender" id="dot-3" value="prefer-not-to-say">
-          <span class="gender-title">Gender</span>
-          <div class="category">
-            <!-- Male gender label -->
-            <label for="dot-1">
-              <span class="dot one"></span>
-              <span class="gender">Male</span>
-            </label>
-            <!-- Female gender label -->
-            <label for="dot-2">
-              <span class="dot two"></span>
-              <span class="gender">Female</span>
-            </label>
-            <!-- Private label -->
-            <label for="dot-3">
-              <span class="dot three"></span>
-              <span class="gender">Prefer not to say</span>
-            </label>
-          </div>
-        </div>
-        <!-- Submit button-->
-        <div class="button">
-          <input type="submit" value="Register">
-        </div>
-      </form>
     </div>
-    </div>
-  </div>
 
-  <script>
-    // Get the password elements correctly
-    var myInput = document.getElementById("password");
-    var confirmInput = document.getElementById("confirm_password");
-    
-    // Get validation elements
-    var capital = document.getElementById("capital");
-    var number = document.getElementById("number");
-    var letter = document.getElementById("letter");
-    var length = document.getElementById("length");
-    var match = document.getElementById("match");
-    /*
-    // Occupation select event
-    document.addEventListener('DOMContentLoaded', function() {
-      const occupationSelect = document.getElementById('occupation-select');
-      
-      occupationSelect.addEventListener('change', function() {
-        console.log('Selected occupation category:', this.value);
-      });
-    });
-    */
-    // Show password requirements when focusing on password fields
-    myInput.onfocus = function() {
-      document.getElementById("msg").style.display = "block";
-    }
-    
-    myInput.onblur = function() {
-      document.getElementById("msg").style.display = "none";
-    }
-    
-    confirmInput.onfocus = function() {
-      document.getElementById("msg").style.display = "block";
-    }
-    
-    confirmInput.onblur = function() {
-      document.getElementById("msg").style.display = "none";
-    }
+    <script>
+        // Get the password elements correctly
+        var myInput = document.getElementById("password");
+        var confirmInput = document.getElementById("confirm_password");
+        
+        // Get validation elements
+        var capital = document.getElementById("capital");
+        var number = document.getElementById("number");
+        var letter = document.getElementById("letter");
+        var length = document.getElementById("length");
+        var match = document.getElementById("match");
 
-    // Function to check if passwords match
-    function checkpswMatch() {
-      if(myInput.value === confirmInput.value && myInput.value !== "") {
-        match.classList.remove("invalid");
-        match.classList.add("valid");
-      } else {
-        match.classList.remove("valid");
-        match.classList.add("invalid");
-      }
-    }
-
-    // Check password requirements while typing
-    myInput.onkeyup = function() {
-      // Check for lowercase letters
-      var lowerCaseLetters = /[a-z]/g;
-      if(myInput.value.match(lowerCaseLetters)) {
-        letter.classList.remove("invalid");
-        letter.classList.add("valid");
-      } else {
-        letter.classList.remove("valid");
-        letter.classList.add("invalid");
-      }
-
-      // Check for uppercase letters
-      var upperCaseLetters = /[A-Z]/g;
-      if(myInput.value.match(upperCaseLetters)) {
-        capital.classList.remove("invalid");
-        capital.classList.add("valid");
-      } else {
-        capital.classList.remove("valid");
-        capital.classList.add("invalid");
-      }
-
-      // Check for numbers
-      var numbers = /[0-9]/g;
-      if(myInput.value.match(numbers)) {
-        number.classList.remove("invalid");
-        number.classList.add("valid");
-      } else {
-        number.classList.remove("valid");
-        number.classList.add("invalid");
-      }
-
-      // Check length
-      if(myInput.value.length >= 8) {
-        length.classList.remove("invalid");
-        length.classList.add("valid");
-      } else {
-        length.classList.remove("valid");
-        length.classList.add("invalid");
-      }
-      
-      checkpswMatch();
-    }
-    
-    // Check if passwords match while typing confirmation
-    confirmInput.onkeyup = function() {
-      checkpswMatch();
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-      const registerForm = document.getElementById('registerForm');
-      
-      registerForm.addEventListener('submit', function(event){
-        if(registerForm.checkValidity()) {
-          alert('Membership registration is complete! You will be redirected to the login page');
+        // Show password requirements when focusing on password fields
+        myInput.onfocus = function() {
+            document.getElementById("msg").style.display = "block";
         }
-      });
-    });
-  </script>
+        
+        myInput.onblur = function() {
+            document.getElementById("msg").style.display = "none";
+        }
+        
+        confirmInput.onfocus = function() {
+            document.getElementById("msg").style.display = "block";
+        }
+        
+        confirmInput.onblur = function() {
+            document.getElementById("msg").style.display = "none";
+        }
+
+        // Function to check if passwords match
+        function checkpswMatch() {
+            if(myInput.value === confirmInput.value && myInput.value !== "") {
+                match.classList.remove("invalid");
+                match.classList.add("valid");
+            } else {
+                match.classList.remove("valid");
+                match.classList.add("invalid");
+            }
+        }
+
+        // Check password requirements while typing
+        myInput.onkeyup = function() {
+            // Check for lowercase letters
+            var lowerCaseLetters = /[a-z]/g;
+            if(myInput.value.match(lowerCaseLetters)) {
+                letter.classList.remove("invalid");
+                letter.classList.add("valid");
+            } else {
+                letter.classList.remove("valid");
+                letter.classList.add("invalid");
+            }
+
+            // Check for uppercase letters
+            var upperCaseLetters = /[A-Z]/g;
+            if(myInput.value.match(upperCaseLetters)) {
+                capital.classList.remove("invalid");
+                capital.classList.add("valid");
+            } else {
+                capital.classList.remove("valid");
+                capital.classList.add("invalid");
+            }
+
+            // Check for numbers
+            var numbers = /[0-9]/g;
+            if(myInput.value.match(numbers)) {
+                number.classList.remove("invalid");
+                number.classList.add("valid");
+            } else {
+                number.classList.remove("valid");
+                number.classList.add("invalid");
+            }
+
+            // Check length
+            if(myInput.value.length >= 8) {
+                length.classList.remove("invalid");
+                length.classList.add("valid");
+            } else {
+                length.classList.remove("valid");
+                length.classList.add("invalid");
+            }
+            
+            checkpswMatch();
+        }
+        
+        // Check if passwords match while typing confirmation
+        confirmInput.onkeyup = function() {
+            checkpswMatch();
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const registerForm = document.getElementById('registerForm');
+            
+            registerForm.addEventListener('submit', function(event){
+                if(registerForm.checkValidity()) {
+                    alert('Membership registration is complete! You will be redirected to the login page');
+                }
+            });
+        });
+    </script>
 {% endblock %}
