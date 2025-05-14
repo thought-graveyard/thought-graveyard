@@ -616,6 +616,217 @@ class BarChart {
     }
 }
 
+// Utility to get all grass tile images
+function getGrassTiles(images) {
+    const tiles = [];
+    for (let row = 1; row <= 4; row++) {
+        for (let col = 1; col <= 8; col++) {
+            tiles.push(images.get(`../static/assets/Tileset/grass/row-${row}-column-${col}.png`));
+        }
+    }
+    return tiles;
+}
+
+// Utility to get all solid path tile images
+function getPathTiles(images) {
+    // Use all solid path tiles for variety
+    return [
+        images.get("../static/assets/Tileset/path/solid/row-5-column-1.png"),
+        images.get("../static/assets/Tileset/path/solid/row-5-column-2.png"),
+        images.get("../static/assets/Tileset/path/solid/row-6-column-1.png"),
+        images.get("../static/assets/Tileset/path/solid/row-6-column-2.png"),
+        images.get("../static/assets/Tileset/path/solid/row-7-column-1.png"),
+        images.get("../static/assets/Tileset/path/solid/row-7-column-2.png")
+    ];
+}
+
+// Utility to get all broken path tile images
+function getBrokenPathTiles(images) {
+    return [
+        images.get("../static/assets/Tileset/path/broken/row-8-column-1.png"),
+        images.get("../static/assets/Tileset/path/broken/row-8-column-2.png"),
+        images.get("../static/assets/Tileset/path/broken/row-8-column-3.png"),
+        images.get("../static/assets/Tileset/path/broken/row-8-column-4.png"),
+        images.get("../static/assets/Tileset/path/broken/row-8-column-5.png"),
+        images.get("../static/assets/Tileset/path/broken/row-8-column-6.png"),
+    ];
+}
+
+// Utility to get all plant images by type
+function getTreeImages(images) {
+    return [
+        images.get("../static/assets/plants/tree1.png"),
+        images.get("../static/assets/plants/tree2.png"),
+        images.get("../static/assets/plants/tree3.png"),
+    ];
+}
+function getTreeShadowImages(images) {
+    return [
+        images.get("../static/assets/plants/shadows/treeshadow1.png"),
+        images.get("../static/assets/plants/shadows/treeshadow2.png"),
+        images.get("../static/assets/plants/shadows/treeshadow3.png"),
+    ];
+}
+function getBushImages(images) {
+    return [
+        images.get("../static/assets/plants/bush1.png"),
+        images.get("../static/assets/plants/bush2.png"),
+        images.get("../static/assets/plants/bush3.png"),
+        images.get("../static/assets/plants/bush4.png"),
+        images.get("../static/assets/plants/bush5.png"),
+    ];
+}
+function getBushShadowImages(images) {
+    return [
+        images.get("../static/assets/plants/shadows/bushshadow1.png"),
+        images.get("../static/assets/plants/shadows/bushshadow2.png"),
+        images.get("../static/assets/plants/shadows/bushshadow3.png"),
+        images.get("../static/assets/plants/shadows/bushshadow4.png"),
+        images.get("../static/assets/plants/shadows/bushshadow5.png"),
+    ];
+}
+function getGrassImages(images) {
+    return [
+        images.get("../static/assets/plants/grass1.png"),
+        images.get("../static/assets/plants/grass2.png"),
+        images.get("../static/assets/plants/grass3.png"),
+    ];
+}
+
+// Plants class to spawn trees, bushes, and grass around the map
+class Plants {
+    constructor(numTrees = 20, numBushes = 40, numGrass = 50) {
+        this.treeImages = getTreeImages(images);
+        this.treeShadowImages = getTreeShadowImages(images);
+        this.bushImages = getBushImages(images);
+        this.bushShadowImages = getBushShadowImages(images);
+        this.grassImages = getGrassImages(images);
+
+        this.plants = [];
+
+        // Path row and buffer for exclusion
+        const tileSize = 64;
+        const pathWorldY = Math.floor((1080 / 2 - 32 + 96) / tileSize);
+        const pathBufferRows = 2;
+        const pathBufferCols = 5;
+
+        function isOnPath(x, y) {
+            const col = Math.floor(x / tileSize);
+            const row = Math.floor(y / tileSize);
+            return (
+                row >= pathWorldY - pathBufferRows &&
+                row <= pathWorldY + pathBufferRows &&
+                col >= -pathBufferCols &&
+                col <= 40 + pathBufferCols
+            );
+        }
+
+        function randomOffPath() {
+            let x, y;
+            let tries = 0;
+            do {
+                x = Math.random() * 4000 - 500;
+                y = Math.random() * 3000 - 300;
+                tries++;
+                if (tries > 1000) break;
+            } while (isOnPath(x, y));
+            return { x, y };
+        }
+
+        // Spawn trees (avoid path area)
+        for (let i = 0; i < numTrees; i++) {
+            const pos = randomOffPath();
+            // Tree and shadow index must match
+            const idx = Math.floor(Math.random() * this.treeImages.length);
+            this.plants.push({
+                x: pos.x,
+                y: pos.y,
+                img: this.treeImages[idx],
+                shadow: this.treeShadowImages[idx],
+                size: 100 + Math.random() * 50,
+                type: "tree"
+            });
+        }
+        // Spawn bushes (avoid path area)
+        for (let i = 0; i < numBushes; i++) {
+            const pos = randomOffPath();
+            // Bush and shadow index must match
+            const idx = Math.floor(Math.random() * this.bushImages.length);
+            this.plants.push({
+                x: pos.x,
+                y: pos.y,
+                img: this.bushImages[idx],
+                shadow: this.bushShadowImages[idx],
+                size: 40 + Math.random() * 24,
+                type: "bush"
+            });
+        }
+        // Spawn grass (avoid path area, no shadow)
+        for (let i = 0; i < numGrass; i++) {
+            const pos = randomOffPath();
+            this.plants.push({
+                x: pos.x,
+                y: pos.y,
+                img: this.grassImages[Math.floor(Math.random() * this.grassImages.length)],
+                shadow: null,
+                size: 24 + Math.random() * 16,
+                type: "grass"
+            });
+        }
+    }
+
+    render(context) {
+        this.plants.forEach(plant => {
+            // Only draw if within visible area (+ buffer)
+            if (
+                plant.x - shift[0] > -96 && plant.x - shift[0] < canvas.width + 96 &&
+                plant.y - shift[1] > -96 && plant.y - shift[1] < canvas.height + 96
+            ) {
+                context.save();
+                context.globalAlpha = 0.85;
+                // Draw shadow first, slightly offset and smaller
+                if (plant.shadow) {
+                    const shadowSize = plant.size * 0.7;
+                    context.globalAlpha = 0.4;
+                    if (plant.type === "tree") {
+                        // Tree shadow lower
+                        context.drawImage(
+                            plant.shadow,
+                            plant.x - shift[0] + plant.size * 0.15,
+                            plant.y - shift[1] + plant.size * 0.75,
+                            shadowSize,
+                            shadowSize * 0.6
+                        );
+                    } else if (plant.type === "bush") {
+                        // Bush shadow higher
+                        context.drawImage(
+                            plant.shadow,
+                            plant.x - shift[0] + plant.size * 0.15,
+                            plant.y - shift[1] + plant.size * 0.55,
+                            shadowSize,
+                            shadowSize * 0.7
+                        );
+                    }
+                    context.globalAlpha = 0.85;
+                }
+                // Draw plant
+                context.drawImage(plant.img, plant.x - shift[0], plant.y - shift[1], plant.size, plant.size);
+                context.restore();
+            }
+        });
+    }
+}
+
+
+// Utility to get a deterministic pseudo-random number based on coordinates
+function pseudoRandom(x, y, seed = 1337) {
+    // Simple hash function for repeatable randomness
+    let n = x * 374761393 + y * 668265263 + seed * 982451653;
+    n = (n ^ (n >> 13)) * 1274126177;
+    n = (n ^ (n >> 16));
+    return Math.abs(n);
+}
+
 
 // Handle updates
 function update(dt, speed) {
@@ -625,21 +836,77 @@ function update(dt, speed) {
 
 // Render all assets and sprites
 function render() {
-    context.fillStyle = terrainPattern;
+    // Draw grass tileset floor with more randomness
+    const tileSize = 64;
+    const grassTiles = getGrassTiles(images);
+    const pathTiles = getPathTiles(images);
+    const brokenPathTiles = getBrokenPathTiles(images);
+    const tilesWide = Math.ceil(canvas.width / tileSize) + 2;
+    const tilesHigh = Math.ceil(canvas.height / tileSize) + 2;
+    const offsetX = Math.floor(shift[0] / tileSize);
+    const offsetY = Math.floor(shift[1] / tileSize);
 
-    // Shift world pattern to make it more realistic
-    context.save();
-    context.translate(-((shift[0] % 32) - 32), -((shift[1] % 32) - 32));
-    context.fillRect((shift[0] % 32) - 32, (shift[1] % 32) - 32, canvas.width, canvas.height);
-    context.restore();
-    
+    // Path logic: draw a horizontal path at a fixed row relative to the initial spawn
+    // Use the initial spawn Y (canvas.height / 2 - 32) + 96 for the path row
+    const fixedPathY = Math.floor((canvas.height / 2 - 32 + 96) / tileSize);
+
+    // Add a buffer to the left and right of the path
+    const pathBuffer = 3; // number of tiles to extend beyond the doors
+    let leftCol = 0 - pathBuffer;
+    let rightCol = Math.floor((canvas.width - tileSize) / tileSize) + pathBuffer;
+
+    for (let y = 0; y < tilesHigh; y++) {
+        for (let x = 0; x < tilesWide; x++) {
+            const worldX = x + offsetX;
+            const worldY = y + offsetY;
+            let drawX = x * tileSize - (shift[0] % tileSize) - tileSize;
+            let drawY = y * tileSize - (shift[1] % tileSize) - tileSize;
+
+            // Draw main path at fixed row with buffer
+            if (
+                worldY === fixedPathY &&
+                x >= leftCol && x <= rightCol
+            ) {
+                const pathTileIndex = pseudoRandom(worldX, worldY, 42) % pathTiles.length;
+                const pathImg = pathTiles[pathTileIndex];
+                context.drawImage(pathImg, drawX, drawY, tileSize, tileSize);
+            }
+            // Draw fewer broken path tiles above and below the main path with buffer
+            else if (
+                (worldY === fixedPathY - 1 || worldY === fixedPathY + 1) &&
+                x >= leftCol && x <= rightCol
+            ) {
+                if (pseudoRandom(worldX, worldY, 99) % 4 === 0) {
+                    const brokenTileIndex = pseudoRandom(worldX, worldY, 77) % brokenPathTiles.length;
+                    const brokenImg = brokenPathTiles[brokenTileIndex];
+                    context.drawImage(brokenImg, drawX, drawY, tileSize, tileSize);
+                } else {
+                    // Use pseudoRandom to pick a grass tile index for more randomness
+                    const tileIndex = pseudoRandom(worldX, worldY) % grassTiles.length;
+                    const img = grassTiles[tileIndex];
+                    context.drawImage(img, drawX, drawY, tileSize, tileSize);
+                }
+            }
+            // All other tiles: grass
+            else {
+                // Use pseudoRandom to pick a grass tile index for more randomness
+                const tileIndex = pseudoRandom(worldX, worldY) % grassTiles.length;
+                const img = grassTiles[tileIndex];
+                context.drawImage(img, drawX, drawY, tileSize, tileSize);
+            }
+        }
+    }
+
+    // Draw plants before tombstones and doors
+    if (plants) {
+        plants.render(context);
+    }
     if (space != "stats") {
         tombstones.render(context);
     } else {
         pie.render(context);
         bar.render(context)
     }
-    
     doors.forEach(door => {
         door.render(context);
     });
@@ -698,7 +965,7 @@ async function init() {
             images.get("../static/assets/character/right/r2.png"),
             images.get("../static/assets/character/right/r3.png")
         ]
-    ], 10, "f", canvas.width / 2 - 32, canvas.height / 2 - 32);
+    ], 10, "f", canvas.width / 2 - 32, canvas.height / 2 - 32); // spawn higher up (was -32)
 
     space = "local";
     spaceTitle = "Private Thoughts";
@@ -737,6 +1004,7 @@ let spaceButton = document.getElementById("space");
 let shift = [0, 0];
 let characterSpeed = 300;
 let input = new Input();
+let plants; // Add plants variable
 let example = { "aaaaaaa": 1, "hello": 7, "cccccccccc": 3, "aaaaaaaa": 1, "helloa": 4, "cccccccccca": 3, "yo": 2};
 let pie = new PieChart("Likes Per Category", example, 200, 200, 80);
 let bar = new BarChart("Likes Per Category", example, 600, 200, 80);
@@ -769,10 +1037,87 @@ let images = new Resources([
     "../static/assets/tombstones/5.png",
     "../static/assets/doors/global_door.png",
     "../static/assets/doors/local_door.png",
-    "../static/assets/doors/stats_door.png"
+    "../static/assets/doors/stats_door.png",
+    // Plant images
+    "../static/assets/plants/bush1.png",
+    "../static/assets/plants/bush2.png",
+    "../static/assets/plants/bush3.png",
+    "../static/assets/plants/bush4.png",
+    "../static/assets/plants/bush5.png",
+    "../static/assets/plants/tree1.png",
+    "../static/assets/plants/tree2.png",
+    "../static/assets/plants/tree3.png",
+    "../static/assets/plants/grass1.png",
+    "../static/assets/plants/grass2.png",
+    "../static/assets/plants/grass3.png",
+
+    //plant shadows
+    "../static/assets/plants/shadows/bushshadow1.png",
+    "../static/assets/plants/shadows/bushshadow2.png",
+    "../static/assets/plants/shadows/bushshadow3.png",
+    "../static/assets/plants/shadows/bushshadow4.png",
+    "../static/assets/plants/shadows/bushshadow5.png",
+    "../static/assets/plants/shadows/treeshadow1.png",
+    "../static/assets/plants/shadows/treeshadow2.png",
+    "../static/assets/plants/shadows/treeshadow3.png",
+
+    //grass tileset
+    
+    "../static/assets/Tileset/grass/row-1-column-1.png",
+    "../static/assets/Tileset/grass/row-1-column-2.png",
+    "../static/assets/Tileset/grass/row-1-column-3.png",
+    "../static/assets/Tileset/grass/row-1-column-4.png",
+    "../static/assets/Tileset/grass/row-1-column-5.png",
+    "../static/assets/Tileset/grass/row-1-column-6.png",
+    "../static/assets/Tileset/grass/row-1-column-7.png",
+    "../static/assets/Tileset/grass/row-1-column-8.png",
+    "../static/assets/Tileset/grass/row-2-column-1.png",
+    "../static/assets/Tileset/grass/row-2-column-2.png",
+    "../static/assets/Tileset/grass/row-2-column-3.png",
+    "../static/assets/Tileset/grass/row-2-column-4.png",
+    "../static/assets/Tileset/grass/row-2-column-5.png",
+    "../static/assets/Tileset/grass/row-2-column-6.png",
+    "../static/assets/Tileset/grass/row-2-column-7.png",
+    "../static/assets/Tileset/grass/row-2-column-8.png",
+    "../static/assets/Tileset/grass/row-3-column-1.png",
+    "../static/assets/Tileset/grass/row-3-column-2.png",
+    "../static/assets/Tileset/grass/row-3-column-3.png",
+    "../static/assets/Tileset/grass/row-3-column-4.png",
+    "../static/assets/Tileset/grass/row-3-column-5.png",
+    "../static/assets/Tileset/grass/row-3-column-6.png",
+    "../static/assets/Tileset/grass/row-3-column-7.png",
+    "../static/assets/Tileset/grass/row-3-column-8.png",
+    "../static/assets/Tileset/grass/row-4-column-1.png",
+    "../static/assets/Tileset/grass/row-4-column-2.png",
+    "../static/assets/Tileset/grass/row-4-column-3.png",
+    "../static/assets/Tileset/grass/row-4-column-4.png",
+    "../static/assets/Tileset/grass/row-4-column-5.png",
+    "../static/assets/Tileset/grass/row-4-column-6.png",
+    "../static/assets/Tileset/grass/row-4-column-7.png",
+    "../static/assets/Tileset/grass/row-4-column-8.png",
+    // path solid tileset
+    "../static/assets/Tileset/path/solid/row-5-column-1.png",
+    "../static/assets/Tileset/path/solid/row-5-column-2.png",
+    "../static/assets/Tileset/path/solid/row-6-column-1.png",
+    "../static/assets/Tileset/path/solid/row-6-column-2.png",
+    "../static/assets/Tileset/path/solid/row-7-column-1.png",
+    "../static/assets/Tileset/path/solid/row-7-column-2.png",
+
+    // path broken tileset
+    "../static/assets/Tileset/path/broken/row-8-column-1.png",
+    "../static/assets/Tileset/path/broken/row-8-column-2.png",
+    "../static/assets/Tileset/path/broken/row-8-column-3.png",
+    "../static/assets/Tileset/path/broken/row-8-column-4.png",
+    "../static/assets/Tileset/path/broken/row-8-column-5.png",
+    "../static/assets/Tileset/path/broken/row-8-column-6.png",
+
+
 ]);
 
-images.onReady(init);
+images.onReady(() => {
+    plants = new Plants();
+    init();
+});
 
 
 document.getElementById("tombstone-form").addEventListener("submit", async (event) => {
