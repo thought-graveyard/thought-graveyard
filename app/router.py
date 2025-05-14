@@ -124,21 +124,43 @@ def add_thought():
             random.randint(0, 9) * 50
         ]
 
-        shift = random.randint(0, 3)
-
+        # take previous thought
         thoughts = Thought.query.filter_by(space = "public").all()
 
-        # Ensure that position is not occupied by other thoguths
-        for thought in thoughts:
-            if position == thought.to_dict()["position"]:
-                if shift == 0:
-                    position[1] -= 500
-                if shift == 1:
-                    position[0] += 1000
-                if shift == 2:
-                    position[1] += 500
-                if shift == 3:
-                    position[0] -= 1000
+        # set the minimum distance
+        min_distance = 75
+
+        # Maximum number of location adjustment attempts.
+        max_attempts = 20
+        attempts = 0
+
+        # Find a location that does not overlap with other tombstones.
+        while attempts < max_attempts:
+            overlap = False
+            
+            for thought in thoughts:
+                thought_pos = thought.to_dict()["position"]
+                
+                distance = ((position[0] - thought_pos[0])**2 + 
+                        (position[1] - thought_pos[1])**2)**0.5
+                
+                if distance < min_distance:
+                    overlap = True
+                    break
+            
+            if not overlap:
+                # Terminate the loop once a non-overlapping location is found.
+                break
+                
+            # When overlapping, shift the position by small amounts.
+            position[0] += random.randint(-100, 100)
+            position[1] += random.randint(-100, 100)
+            
+            # Maintain screen boundaries
+            position[0] = max(0, min(position[0], 950))
+            position[1] = max(0, min(position[1], 450))
+            
+            attempts += 1
 
         # Get occupation from User table
         occupation = User.query.filter_by(id = session.get("user_id")).all()[0].occupation
