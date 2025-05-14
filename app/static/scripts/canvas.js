@@ -907,20 +907,118 @@ function render() {
         }
     }
 
-    // Draw plants before tombstones and doors
+    // Collect all visible renderable objects (plants, tombstones, doors, character)
+    let renderables = [];
+
+    // Plants (add each plant as a renderable)
     if (plants) {
-        plants.render(context);
+        plants.plants.forEach(plant => {
+            // Only draw if within visible area (+ buffer)
+            if (
+                plant.x - shift[0] > -96 && plant.x - shift[0] < canvas.width + 96 &&
+                plant.y - shift[1] > -96 && plant.y - shift[1] < canvas.height + 96
+            ) {
+                renderables.push({
+                    type: "plant",
+                    y: plant.y + (plant.size || 0),
+                    obj: plant
+                });
+            }
+        });
     }
+
+    // Tombstones
     if (space != "stats") {
-        tombstones.render(context);
-    } else {
-        pie.render(context);
-        bar.render(context)
+        tombstones.inFrame.forEach((tombstone, i) => {
+            let pos = space == "local" ? tombstone["local_position"] : tombstone["position"];
+            renderables.push({
+                type: "tombstone",
+                y: pos[1] + 64,
+                obj: tombstone,
+                pos: pos
+            });
+        });
     }
+
+    // Doors
     doors.forEach(door => {
-        door.render(context);
+        if (space == door.space) {
+            renderables.push({
+                type: "door",
+                y: door.y + 64,
+                obj: door
+            });
+        }
     });
-    
+
+    // Character
+    renderables.push({
+        type: "character",
+        y: character.y + 64,
+        obj: character
+    });
+
+    // Sort by y (ascending)
+    renderables.sort((a, b) => a.y - b.y);
+
+    // Draw all shadows first
+    renderables.forEach(item => {
+        if (item.type === "plant" && item.obj.shadow) {
+            // Draw shadow for plant
+            const plant = item.obj;
+            const shadowSize = plant.size * 0.7;
+            context.save();
+            context.globalAlpha = 0.4;
+            if (plant.type === "tree") {
+                context.drawImage(
+                    plant.shadow,
+                    plant.x - shift[0] + plant.size * 0.15,
+                    plant.y - shift[1] + plant.size * 0.75,
+                    shadowSize,
+                    shadowSize * 0.6
+                );
+            } else if (plant.type === "bush") {
+                context.drawImage(
+                    plant.shadow,
+                    plant.x - shift[0] + plant.size * 0.15,
+                    plant.y - shift[1] + plant.size * 0.55,
+                    shadowSize,
+                    shadowSize * 0.7
+                );
+            }
+            context.restore();
+        }
+    });
+
+    // Draw all main objects in sorted order
+    renderables.forEach(item => {
+        if (item.type === "plant") {
+            const plant = item.obj;
+            context.save();
+            context.globalAlpha = 0.85;
+            context.drawImage(plant.img, plant.x - shift[0], plant.y - shift[1], plant.size, plant.size);
+            context.restore();
+        } else if (item.type === "tombstone") {
+            const tombstone = item.obj;
+            context.save();
+            context.filter = "sepia(0.4) brightness(0.9)";
+            if (tombstone.id == character.getIntersection()) {
+                context.filter = "sepia(0.4) brightness(1.3)";
+            }
+            context.drawImage(tombstone.src, item.pos[0] - shift[0], item.pos[1] - shift[1], 64, 64);
+            context.restore();
+        } else if (item.type === "door") {
+            item.obj.render(context);
+        } else if (item.type === "character") {
+            item.obj.render(context);
+        }
+    });
+
+    // Stats space: render charts instead of tombstones/plants/doors/character
+    if (space == "stats") {
+        pie.render(context);
+        bar.render(context);
+    }
 
     // Set font, render and calculate size of white box behind text
     context.font = "20pt \"Jersey 10\"";
@@ -930,8 +1028,6 @@ function render() {
     context.fillRect((canvas.width / 2) - (boxWidth / 2) - 6, 12, boxWidth + 12, parseInt(context.font, 10));
     context.fillStyle = "black";
     context.fillText(spaceTitle, canvas.width / 2, 32);
-
-    character.render(context);
 }
 
 
