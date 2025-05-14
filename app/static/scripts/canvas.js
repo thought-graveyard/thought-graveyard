@@ -37,6 +37,7 @@ class Resources {
         });
     }
 
+    // Run provided callback function once all assets are loaded
     load(src) {
         if (this.cache[src]) {
             return this.cache[src];
@@ -155,6 +156,7 @@ class Sprite {
         this.animate(dt);
         this.calculateIntersection();
 
+        // Chnages the position of the character depending on the direction faced
         if (this.dir == "b")  {
             let pos = this.y - (speed * dt);
             if (!this.collision(this.x, pos, 64, "b")) {
@@ -240,7 +242,10 @@ class Sprite {
     }
 
     render(context) {
+        context.save();
+        context.filter = "sepia(0.4) brightness(0.9)";
         context.drawImage(this.frame, this.x, this.y, 64, 64);
+        context.restore();
     }
 }
 
@@ -287,6 +292,7 @@ class Input {
             });
         });
 
+        // Handles keyboard input
         document.addEventListener("keydown", (e) => {
             this.setKey(e.key, "down");
         });
@@ -368,9 +374,11 @@ class Tombstones {
     render(context) {
         this.inFrame.forEach(tombstone => {
             context.save();
+            context.filter = "sepia(0.4) brightness(0.9)";
+
 
             if (tombstone.id == character.getIntersection()) {
-                context.filter = "brightness(1.5)";
+                context.filter = "sepia(0.4) brightness(1.3)";
             }
 
             if (space == "local") {
@@ -419,8 +427,10 @@ class Door {
         if (space == this.space) {
             context.save();
 
+            context.filter = "sepia(0.4) brightness(0.9)";
+
             if (character.getIntersection() == `door_${this.location}`) {
-                context.filter = "brightness(1.5)";
+                context.filter = "sepia(0.4) brightness(1.3)";
             }
 
             context.drawImage(this.src, this.x, this.y, 64, 64);
