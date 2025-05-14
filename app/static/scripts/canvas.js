@@ -616,52 +616,6 @@ class BarChart {
     }
 }
 
-
-// Add a Plants class to render plants around the map
-class Plants {
-    constructor(numPlants = 40) {
-        // Plant image sources (bush1-5, tree1-3, grass1-3)
-        this.plantImages = [
-            images.get("../static/assets/plants/bush1.png"),
-            images.get("../static/assets/plants/bush2.png"),
-            images.get("../static/assets/plants/bush3.png"),
-            images.get("../static/assets/plants/bush4.png"),
-            images.get("../static/assets/plants/bush5.png"),
-            images.get("../static/assets/plants/tree1.png"),
-            images.get("../static/assets/plants/tree2.png"),
-            images.get("../static/assets/plants/tree3.png"),
-            images.get("../static/assets/plants/grass1.png"),
-            images.get("../static/assets/plants/grass2.png"),
-            images.get("../static/assets/plants/grass3.png")
-        ];
-        // Randomly generate plant positions and types
-        this.plants = [];
-        for (let i = 0; i < numPlants; i++) {
-            this.plants.push({
-                x: Math.random() * 3000 - 500,
-                y: Math.random() * 2000 - 300,
-                img: this.plantImages[Math.floor(Math.random() * this.plantImages.length)],
-                size: 32 + Math.random() * 48 // allow trees to be larger
-            });
-        }
-    }
-
-    render(context) {
-        this.plants.forEach(plant => {
-            if (
-                plant.x - shift[0] > -64 && plant.x - shift[0] < canvas.width + 64 &&
-                plant.y - shift[1] > -64 && plant.y - shift[1] < canvas.height + 64
-            ) {
-                context.save();
-                context.globalAlpha = 0.85;
-                context.drawImage(plant.img, plant.x - shift[0], plant.y - shift[1], plant.size, plant.size);
-                context.restore();
-            }
-        });
-    }
-}
-
-
 // Utility to get all grass tile images
 function getGrassTiles(images) {
     const tiles = [];
@@ -684,6 +638,133 @@ function getPathTiles(images) {
         images.get("../static/assets/Tileset/path/solid/row-7-column-1.png"),
         images.get("../static/assets/Tileset/path/solid/row-7-column-2.png")
     ];
+}
+
+// Utility to get all broken path tile images
+function getBrokenPathTiles(images) {
+    return [
+        images.get("../static/assets/Tileset/path/broken/row-8-column-1.png"),
+        images.get("../static/assets/Tileset/path/broken/row-8-column-2.png"),
+        images.get("../static/assets/Tileset/path/broken/row-8-column-3.png"),
+        images.get("../static/assets/Tileset/path/broken/row-8-column-4.png"),
+        images.get("../static/assets/Tileset/path/broken/row-8-column-5.png"),
+        images.get("../static/assets/Tileset/path/broken/row-8-column-6.png"),
+    ];
+}
+
+// Utility to get all plant images by type
+function getTreeImages(images) {
+    return [
+        images.get("../static/assets/plants/tree1.png"),
+        images.get("../static/assets/plants/tree2.png"),
+        images.get("../static/assets/plants/tree3.png"),
+    ];
+}
+function getBushImages(images) {
+    return [
+        images.get("../static/assets/plants/bush1.png"),
+        images.get("../static/assets/plants/bush2.png"),
+        images.get("../static/assets/plants/bush3.png"),
+        images.get("../static/assets/plants/bush4.png"),
+        images.get("../static/assets/plants/bush5.png"),
+    ];
+}
+function getGrassImages(images) {
+    return [
+        images.get("../static/assets/plants/grass1.png"),
+        images.get("../static/assets/plants/grass2.png"),
+        images.get("../static/assets/plants/grass3.png"),
+    ];
+}
+
+// Plants class to spawn trees, bushes, and grass around the map
+class Plants {
+    constructor(numTrees = 20, numBushes = 40, numGrass = 50) {
+        this.treeImages = getTreeImages(images);
+        this.bushImages = getBushImages(images);
+        this.grassImages = getGrassImages(images);
+
+        this.plants = [];
+
+        // Path row and buffer for exclusion
+        const tileSize = 64;
+        // Use a fixed world Y for the path, not dependent on current canvas size
+        const pathWorldY = Math.floor((1080 / 2 - 32 + 96) / tileSize); // 1080 is a typical design height
+        const pathBufferRows = 2; // rows above and below
+        const pathBufferCols = 5; // columns left and right
+
+        // Helper to check if a position is on the path (including buffer)
+        function isOnPath(x, y) {
+            const col = Math.floor(x / tileSize);
+            const row = Math.floor(y / tileSize);
+            // Path always at world row pathWorldY, buffer rows above/below, and wide in X
+            return (
+                row >= pathWorldY - pathBufferRows &&
+                row <= pathWorldY + pathBufferRows &&
+                col >= -pathBufferCols &&
+                col <= 40 + pathBufferCols // 40 is a wide enough world for most screens
+            );
+        }
+
+        // Helper to generate a random position not on the path
+        function randomOffPath() {
+            let x, y;
+            let tries = 0;
+            do {
+                x = Math.random() * 4000 - 500;
+                y = Math.random() * 3000 - 300;
+                tries++;
+                if (tries > 1000) break;
+            } while (isOnPath(x, y));
+            return { x, y };
+        }
+
+        // Spawn trees (avoid path area)
+        for (let i = 0; i < numTrees; i++) {
+            const pos = randomOffPath();
+            this.plants.push({
+                x: pos.x,
+                y: pos.y,
+                img: this.treeImages[Math.floor(Math.random() * this.treeImages.length)],
+                size: 100 + Math.random() * 50 
+            });
+        }
+        // Spawn bushes (avoid path area)
+        for (let i = 0; i < numBushes; i++) {
+            const pos = randomOffPath();
+            this.plants.push({
+                x: pos.x,
+                y: pos.y,
+                img: this.bushImages[Math.floor(Math.random() * this.bushImages.length)],
+                size: 40 + Math.random() * 24
+            });
+        }
+        // Spawn grass (avoid path area)
+        for (let i = 0; i < numGrass; i++) {
+            const pos = randomOffPath();
+            this.plants.push({
+                x: pos.x,
+                y: pos.y,
+                img: this.grassImages[Math.floor(Math.random() * this.grassImages.length)],
+                size: 24 + Math.random() * 16
+            });
+        }
+    }
+
+    render(context) {
+        this.plants.forEach(plant => {
+            // Only draw if within visible area (+ buffer)
+            if (
+                plant.x - shift[0] > -96 && plant.x - shift[0] < canvas.width + 96 &&
+                plant.y - shift[1] > -96 && plant.y - shift[1] < canvas.height + 96
+            ) {
+                context.save();
+                context.globalAlpha = 0.85;
+                context.drawImage(plant.img, plant.x - shift[0], plant.y - shift[1], plant.size, plant.size);
+                context.restore();
+            }
+        });
+    }
 }
 
 
@@ -709,18 +790,20 @@ function render() {
     const tileSize = 64;
     const grassTiles = getGrassTiles(images);
     const pathTiles = getPathTiles(images);
+    const brokenPathTiles = getBrokenPathTiles(images);
     const tilesWide = Math.ceil(canvas.width / tileSize) + 2;
     const tilesHigh = Math.ceil(canvas.height / tileSize) + 2;
     const offsetX = Math.floor(shift[0] / tileSize);
     const offsetY = Math.floor(shift[1] / tileSize);
 
-    // Lower the path so it aligns with the doors visually
-    // Doors are at y = canvas.height/2 - 32, but visually their bottom is at y + 64
-    // Move the path down by one tile
-    const doorY = Math.floor((shift[1] + canvas.height / 2 + 32) / tileSize);
+    // Path logic: draw a horizontal path at a fixed row relative to the initial spawn
+    // Use the initial spawn Y (canvas.height / 2 - 32) + 96 for the path row
+    const fixedPathY = Math.floor((canvas.height / 2 - 32 + 96) / tileSize);
 
-    const leftDoorCol = Math.floor((shift[0] + 0) / tileSize);
-    const rightDoorCol = Math.floor((shift[0] + canvas.width - 64) / tileSize);
+    // Add a buffer to the left and right of the path
+    const pathBuffer = 3; // number of tiles to extend beyond the doors
+    let leftCol = 0 - pathBuffer;
+    let rightCol = Math.floor((canvas.width - tileSize) / tileSize) + pathBuffer;
 
     for (let y = 0; y < tilesHigh; y++) {
         for (let x = 0; x < tilesWide; x++) {
@@ -729,16 +812,33 @@ function render() {
             let drawX = x * tileSize - (shift[0] % tileSize) - tileSize;
             let drawY = y * tileSize - (shift[1] % tileSize) - tileSize;
 
-            // Draw path if on the path row and between the doors
+            // Draw main path at fixed row with buffer
             if (
-                worldY === doorY &&
-                worldX >= leftDoorCol && worldX <= rightDoorCol
+                worldY === fixedPathY &&
+                x >= leftCol && x <= rightCol
             ) {
-                // Pick a path tile for variety
                 const pathTileIndex = pseudoRandom(worldX, worldY, 42) % pathTiles.length;
                 const pathImg = pathTiles[pathTileIndex];
                 context.drawImage(pathImg, drawX, drawY, tileSize, tileSize);
-            } else {
+            }
+            // Draw fewer broken path tiles above and below the main path with buffer
+            else if (
+                (worldY === fixedPathY - 1 || worldY === fixedPathY + 1) &&
+                x >= leftCol && x <= rightCol
+            ) {
+                if (pseudoRandom(worldX, worldY, 99) % 4 === 0) {
+                    const brokenTileIndex = pseudoRandom(worldX, worldY, 77) % brokenPathTiles.length;
+                    const brokenImg = brokenPathTiles[brokenTileIndex];
+                    context.drawImage(brokenImg, drawX, drawY, tileSize, tileSize);
+                } else {
+                    // Use pseudoRandom to pick a grass tile index for more randomness
+                    const tileIndex = pseudoRandom(worldX, worldY) % grassTiles.length;
+                    const img = grassTiles[tileIndex];
+                    context.drawImage(img, drawX, drawY, tileSize, tileSize);
+                }
+            }
+            // All other tiles: grass
+            else {
                 // Use pseudoRandom to pick a grass tile index for more randomness
                 const tileIndex = pseudoRandom(worldX, worldY) % grassTiles.length;
                 const img = grassTiles[tileIndex];
@@ -815,7 +915,7 @@ async function init() {
             images.get("../static/assets/character/right/r2.png"),
             images.get("../static/assets/character/right/r3.png")
         ]
-    ], 10, "f", canvas.width / 2 - 32, canvas.height / 2 - 32);
+    ], 10, "f", canvas.width / 2 - 32, canvas.height / 2 - 32); // spawn higher up (was -32)
 
     space = "local";
     spaceTitle = "Private Thoughts";
@@ -954,7 +1054,10 @@ let images = new Resources([
 
 ]);
 
-images.onReady(init);
+images.onReady(() => {
+    plants = new Plants();
+    init();
+});
 
 
 document.getElementById("tombstone-form").addEventListener("submit", async (event) => {
