@@ -394,7 +394,6 @@
             
             // Filter search results by keyword and emotion
             const filtered = thoughts.filter(t => {
-                console.log(t);
                 const matchesKeyword = t.title.toLowerCase().includes(keyword) || t.content.toLowerCase().includes(keyword);
                 const matchesEmotion = checkedEmotions.length === 0 || checkedEmotions.includes(t.emotions);
                 return matchesKeyword && matchesEmotion;
