@@ -178,10 +178,10 @@
                 <input type="text" id="search-keyword" placeholder="Keywords" class="w-full p-2 border mb-2" />
                 <div>
                   <p>Emotion Filter:</p>
-                  <label><input type="checkbox" class="filter-emotion" value="😄" /> 😄</label>
-                  <label><input type="checkbox" class="filter-emotion" value="😢" /> 😢</label>
-                  <label><input type="checkbox" class="filter-emotion" value="😡" /> 😡</label>
-                  <label><input type="checkbox" class="filter-emotion" value="😶" /> 😶</label>
+                    <label><input type="checkbox" class="filter-emotion" value="😄" /> 😄</label>
+                    <label><input type="checkbox" class="filter-emotion" value="😢" /> 😢</label>
+                    <label><input type="checkbox" class="filter-emotion" value="😡" /> 😡</label>
+                    <label><input type="checkbox" class="filter-emotion" value="😶" /> 😶</label>
                 </div>
                 <ul id="search-results" class="text-sm space-y-2 mt-4"></ul>
                 <div style="margin-bottom: 1em;">
@@ -240,6 +240,7 @@
                 }
                 
                 tombstoneData = await request.json();
+                renderSearchResults(tombstoneData);
             } catch (error) {
                 // User-friendly error message
                 const errorMessage = document.createElement("div");
@@ -263,6 +264,7 @@
                 }
                 
                 tombstoneData = await request.json();
+                renderSearchResults(tombstoneData);
             } catch (error) {
                 // User-friendly error message
                 const errorMessage = document.createElement("div");
@@ -276,14 +278,81 @@
             }
         }
 
-        function loadStatsSpace() {
-            tombstoneData = [];
+        async function loadStatsSpace() {
+            // Ensure that data is for global space
+            await loadGlobalSpace();
+            renderSearchResults(tombstoneData);
         }
 
+        function renderSearchResults(thoughts) {
+            const keyword = document.getElementById("search-keyword").value.toLowerCase();
+            const checkedEmotions = Array.from(document.querySelectorAll(".filter-emotion:checked")).map(cb => cb.value);
+            
+            // Filter search results by keyword and emotion
+            const filtered = thoughts.filter(t => {
+                console.log(t);
+                const matchesKeyword = t.title.toLowerCase().includes(keyword) || t.content.toLowerCase().includes(keyword);
+                const matchesEmotion = checkedEmotions.length === 0 || checkedEmotions.includes(t.emotions);
+                return matchesKeyword && matchesEmotion;
+            });
+        
+            const list = document.getElementById("search-results");
+            list.innerHTML = "";
+            filtered.forEach(t => {
+                // Render correct search results
+                const li = document.createElement("li");
+                li.innerHTML = `<p>${t.title}</p>`;
+                
+                // Add delete button if local thought
+                if (t.author === sessionData.user_id) {
+                    const delBtn = document.createElement("button");
+                    delBtn.innerText = "Delete";
+                    delBtn.className = "text-red-600 text-xs underline ml-4";
+                    delBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        if (confirm("Delete it?")) {
+                            fetch(`/api/thoughts/${t.id}`, { method: "DELETE" })
+                                .then(() => {
+                                    allThoughts = allThoughts.filter(x => x.id !== t.id);
+                                    renderSearchResults(allThoughts);
+                                    document.getElementById('graveyard').innerHTML = '';
+                                    allThoughts.forEach(renderGravestone);
+                                });
+                        }
+                    };
+        
+                    li.appendChild(delBtn);
+                }
+                
+                // On click, transport to location of tombstone
+                li.onclick = () => {
+                    if (space == "local") {
+                        character.x = canvas.width / 2 - 32;
+                        character.y = canvas.height / 2 - 32;
+                        shift[0] = t.local_position[0] - (canvas.width / 2 - 32);
+                        shift[1] = t.local_position[1] - (canvas.height / 2 - 32);
+                    } else if (space == "global") {
+                        character.x = canvas.width / 2 - 32;
+                        character.y = canvas.height / 2 - 32;
+                        shift[0] = t.position[0] - (canvas.width / 2 - 32);
+                        shift[1] = t.position[1] - (canvas.height / 2 - 32);
+                    }
+                    
+                    tombstones = new Tombstones(tombstoneData);
+                    character.calculateIntersection()
+                    render();
+                };
+
+                list.appendChild(li);
+            });
+        }
+
+        // Used only for like button appearance
         const sessionData = {
             user_id: {{ user_id }} 
         };
 
+        // Like tombstones
         document.getElementById("like-button").addEventListener("click", async (event) => {
             let csrfToken = document.querySelector('input[name="csrf_token"]').value;
         
@@ -303,6 +372,12 @@
             }
 
             document.getElementById("tombstone-likes").textContent = tombstone.likes.length;
+        });
+
+        // On search input, run search function
+        document.getElementById("search-keyword").addEventListener("input", () => { renderSearchResults(tombstoneData) });
+        [... document.getElementsByClassName("filter-emotion")].forEach(checkbox => {
+            checkbox.addEventListener("change", () => { renderSearchResults(tombstoneData) });
         });
 
         let tombStoneId;

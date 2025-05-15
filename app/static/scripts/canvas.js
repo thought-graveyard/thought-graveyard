@@ -57,6 +57,7 @@ class Resources {
         }
     }
 
+    // Get loaded asset by src
     get(src) {
         return this.cache[src];
     }
@@ -73,6 +74,7 @@ class Resources {
         return ready;
     }
 
+    // Run callback function when ready
     onReady(callback) {
         this.callback = callback;
     }
@@ -96,12 +98,14 @@ class Sprite {
         this.y = y;
     }
 
+    // Helper function for resetting position
     resetPosition(x, y, dir) {
         this.x = x;
         this.y = y;
         this.dir = dir;
     }
 
+    // Method to check for wall collisions and change movement type to shifting if colliding
     collision(x, y, size, wall) {
         if (wall == "l") {
             return x <= 0;
@@ -114,7 +118,7 @@ class Sprite {
         }
     }
 
-    // Handles keyboard input
+    // Handles keyboard input and virtual joypad input
     handleInput(dt, speed) {
         if (input.getStatus("DOWN") == "down") {
             this.move("f", speed, dt);
@@ -150,6 +154,9 @@ class Sprite {
         }
     }
 
+    // Processes input and translates into movement
+    // If colliding with a wall, change the global shift
+    // Otherwise change the position of the character
     move(dir, speed, dt) {
         this.dir = dir;
 
@@ -192,6 +199,7 @@ class Sprite {
         } 
     }
 
+    // Calculates intersections with tombstones and doors
     calculateIntersection() {
         let intersection = false;
         tombstones.locs.forEach(location => {
@@ -220,16 +228,19 @@ class Sprite {
         }
     }
 
+    // Returns the object that the character is intersecting with
     getIntersection() {
         return this.intersect;
     }
 
+    // Helper function to read tombstones
     readTombstone() {
         if (this.intersect != null) {
             displayTombstone(this.intersect);
         }
     }
 
+    // Handles animation when moving
     animate(dt) {
         this.index += dt * this.speed;
 
@@ -241,6 +252,7 @@ class Sprite {
         this.frame = this.urls[dirVal][idx % max];
     }
 
+    // Renders the character on the screen
     render(context) {
         context.save();
         context.filter = "sepia(0.4) brightness(0.9)";
@@ -341,11 +353,14 @@ class Input {
 
 
 class Tombstones {
+    // Constructs tombstones from list
     constructor(tombstones) {
         this.tombstones = tombstones;
         this.update(shift);
     }
 
+    // Updates the position of tombstones to match a shift value
+    // Used when changing the global shift, but not the tombstones themselves
     update(shift) {
         this.inFrame = [];
         this.locs = []
@@ -371,6 +386,7 @@ class Tombstones {
         });
     }
 
+    // Renders the tombstones on the screen if they are in frame
     render(context) {
         this.inFrame.forEach(tombstone => {
             context.save();
@@ -394,6 +410,7 @@ class Tombstones {
 
 
 class Door {
+    // COnstructs a door used for changing space
     constructor(x, y, location, visibleSpace) {
         this.x = x;
         this.y = y;
@@ -402,6 +419,7 @@ class Door {
         this.src = images.get(`../static/assets/doors/${this.location}_door.png`);
     }
 
+    // Changes space to the location, including loading of new tombstone data
     async changeSpace() {
         if (this.location == "local") {
             await loadLocalSpace();
@@ -422,6 +440,7 @@ class Door {
         character.calculateIntersection();
     }
 
+    // Renders the doors in their apprpriate locations
     render(context) {
         if (space == this.space) {
             context.save();
@@ -450,6 +469,7 @@ class Door {
 
 
 class PieChart {
+    // Constructs a pie chart based on provided data in the fomat [{key: value}, ...]
     constructor(title, data, x, y, radius) {
         this.title = title;
         this.labels = Object.keys(data);
@@ -460,10 +480,12 @@ class PieChart {
         this.radius = radius;
     }
 
+    // Calculates segment colour from angle
     getColour(angle) {
         return `hsl(${(180 * angle) / Math.PI}, 75%, 67%)`
     }
 
+    // Draws a segment given some intiialisation data
     drawSegment(context, startAngle, endAngle, colour) {
         context.save();
         context.fillStyle = colour;
@@ -477,6 +499,7 @@ class PieChart {
         context.restore();
     }
 
+    // Draws text
     drawText(context, text, size, x, y, maxWidth, colour) {
         context.font = `${size}pt "Jersey 10"`;
         context.textAlign = "center";
@@ -484,6 +507,7 @@ class PieChart {
         context.fillText(text, x - shift[0], y - shift[1], maxWidth);
     }
 
+    // Draws labels of appropriate colour below the pie chart
     drawLabel(context, text, position, colour) {
         let base = Math.floor(position / 3);
         let space = position % 3;
@@ -491,6 +515,8 @@ class PieChart {
         this.drawText(context, text, 10, this.x - this.radius + (this.radius * space), this.y + (this.radius * 1.5) + base * 15, this.radius / 1.5, colour);
     }
 
+    // Draws the pie chart itself by analysing the provided data
+    // Creates the correct segments from provided umerical inputs
     drawChart(context) {
         let total = this.values.reduce((a, b) => a + b, 0);
         let position = 0;
@@ -520,6 +546,7 @@ class PieChart {
         });
     }
 
+    // Renders the pie chart with a title on a white background
     render(context) {
         context.save();
 
@@ -538,6 +565,7 @@ class PieChart {
 
 
 class BarChart {
+    // COnstructs a bar chart with data in the fromat [{key: value}, etc.]
     constructor(title, data, x, y, height) {
         this.title = title;
         this.labels = Object.keys(data);
@@ -548,10 +576,12 @@ class BarChart {
         this.height = height;
     }
 
+    // Calculates colour from bar position
     getColour(position) {
         return `hsl(${(360 / this.values.length) * position}, 75%, 67%)`;
     }
 
+    // Draws bar of specific height relative to the maximum bar
     drawBar(context, xPos, relativeHeight, colour) {
         context.save();
         context.fillStyle = colour;
@@ -564,6 +594,7 @@ class BarChart {
         context.restore();
     }
 
+    // Renders text in a specific location
     drawText(context, text, size, x, y, maxWidth, colour) {
         context.font = `${size}pt "Jersey 10"`;
         context.textAlign = "center";
@@ -571,6 +602,7 @@ class BarChart {
         context.fillText(text, x - shift[0], y - shift[1], maxWidth);
     }
 
+    // Draws labels below the bars in their appropriate colours
     drawLabel(context, text, position, colour, width) {
         let base = Math.floor(position / 4);
         let space = position % 4;
@@ -581,6 +613,8 @@ class BarChart {
         this.drawText(context, text, 10, xPos, yPos, 40, colour);
     }
 
+    // Draws the chart itself
+    // Calculates relative heights from provided numerical data
     drawChart(context, width) {
         let max = Math.max(...this.values);
         let position = 0;
@@ -608,6 +642,7 @@ class BarChart {
         });
     }
 
+    // Renders bar chart with title on a white background
     render(context) {
         context.save();
 
@@ -989,17 +1024,9 @@ function render() {
         }
     });
 
-    // Draw all main objects in sorted order
+    // Draw tombstones and doors under character
     renderables.forEach(item => {
-        if (item.type === "plant") {
-            const plant = item.obj;
-            context.save();
-            context.globalAlpha = 0.85;
-            context.drawImage(plant.img, plant.x - shift[0], plant.y - shift[1], plant.size, plant.size);
-            context.restore();
-        } else if (item.type === "character") {
-            item.obj.render(context);
-        } else if (item.type === "tombstone") {
+        if (item.type === "tombstone") {
             const tombstone = item.obj;
             context.save();
             context.filter = "sepia(0.4) brightness(0.9)";
@@ -1009,6 +1036,19 @@ function render() {
             context.drawImage(tombstone.src, item.pos[0] - shift[0], item.pos[1] - shift[1], 64, 64);
             context.restore();
         } else if (item.type === "door") {
+            item.obj.render(context);
+        }
+    });
+
+    // Draw all main objects in sorted order
+    renderables.forEach(item => {
+        if (item.type === "plant") {
+            const plant = item.obj;
+            context.save();
+            context.globalAlpha = 0.85;
+            context.drawImage(plant.img, plant.x - shift[0], plant.y - shift[1], plant.size, plant.size);
+            context.restore();
+        } else if (item.type === "character") {
             item.obj.render(context);
         }
     });
@@ -1079,6 +1119,7 @@ async function init() {
 
     shift = [0, 0];
     tombstones = new Tombstones(tombstoneData);
+    renderSearchResults(tombstoneData);
     doors = [
         // Doors in local space
         new Door(canvas.width - 64, canvas.height / 2 - 32, "global", "local"),
@@ -1219,7 +1260,7 @@ images.onReady(() => {
     init();
 });
 
-
+// Create a new tombstone
 document.getElementById("tombstone-form").addEventListener("submit", async (event) => {
     event.preventDefault();
 
@@ -1238,7 +1279,8 @@ document.getElementById("tombstone-form").addEventListener("submit", async (even
         body: JSON.stringify(jsonData)
     });
 
-    loadLocalSpace();
+    await loadLocalSpace();
+    tombstones = new Tombstones(tombstoneData);
     render();
     hideTombstoneCreator();
 });
