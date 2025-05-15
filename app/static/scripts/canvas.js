@@ -337,8 +337,6 @@ class Input {
         }
 
         this.pressed[key] = status;
-
-        console.log(this.pressed);
     }
 
     getStatus(key) {
