@@ -482,7 +482,7 @@ class PieChart {
 
     // Calculates segment colour from angle
     getColour(angle) {
-        return `hsl(${(180 * angle) / Math.PI}, 75%, 67%)`
+        return `hsl(${(180 * angle) / Math.PI}, 50%, 67%)`
     }
 
     // Draws a segment given some intiialisation data
@@ -565,7 +565,7 @@ class PieChart {
 
 
 class BarChart {
-    // COnstructs a bar chart with data in the fromat [{key: value}, etc.]
+    // Constructs a bar chart with data in the fromat [{key: value}, etc.]
     constructor(title, data, x, y, height) {
         this.title = title;
         this.labels = Object.keys(data);
@@ -578,7 +578,7 @@ class BarChart {
 
     // Calculates colour from bar position
     getColour(position) {
-        return `hsl(${(360 / this.values.length) * position}, 75%, 67%)`;
+        return `hsl(${(360 / this.values.length) * position}, 50%, 67%)`;
     }
 
     // Draws bar of specific height relative to the maximum bar
@@ -648,6 +648,11 @@ class BarChart {
 
         // Draw background of pie chart
         let width = 30 * (this.labels.length + 1);
+
+        if (width < 220) {
+            width = 220;
+        }
+
         context.fillStyle = "#fff";
         context.fillRect(this.x - shift[0] - (width * 0.6), this.y - shift[1] - (this.height * 1.8), 1.2 * width, 2.4 * this.height + Math.floor(this.labels.length / 4) * 10);
 
@@ -659,6 +664,50 @@ class BarChart {
         context.restore();
     }
 }
+
+
+class OverviewChart {
+    // Constructs an overview panel for the stats page
+    // Data is in the format [line1, line2, etc.]
+    constructor(title, data, x, y, width, height) {
+        this.title = title;
+        this.data = data;
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+    }
+
+    // Renders text in a specific location
+    drawText(context, text, size, x, y, maxWidth, colour) {
+        context.font = `${size}pt "Jersey 10"`;
+        context.textAlign = "center";
+        context.fillStyle = colour;
+        context.fillText(text, x - shift[0], y - shift[1], maxWidth);
+    }
+
+    // Renders bar chart with title on a white background
+    render(context) {
+        context.save();
+
+        context.fillStyle = "#fff";
+        context.fillRect(this.x - shift[0] - (this.width / 2), this.y - shift[1] - (this.height / 2), this.width, this.height);
+
+        // Draw chart title
+        this.drawText(context, this.title, 20, this.x, this.y - (this.height * 0.35), this.width * 0.9, "#000000");
+
+        let position = 26;
+
+        // Draw each line of data
+        this.data.forEach(line => {
+            this.drawText(context, line, 12, this.x, this.y - (this.height * 0.35) + position, this.width * 0.9, "#000000");
+            position += 18;
+        });
+
+        context.restore();
+    }
+}
+
 
 // Utility to get all grass tile images
 function getGrassTiles(images) {
@@ -997,7 +1046,8 @@ function render() {
 
     // Draw all shadows first
     renderables.forEach(item => {
-        if (item.type === "plant" && item.obj.shadow) {
+        // Do not render plants in the stats space
+        if (item.type === "plant" && item.obj.shadow && space != "stats") {
             // Draw shadow for plant
             const plant = item.obj;
             const shadowSize = plant.size * 0.7;
@@ -1024,6 +1074,13 @@ function render() {
         }
     });
 
+    // Stats space: render charts instead of tombstones/plants/character
+    if (space == "stats") {
+        charts.forEach(chart => {
+            chart.render(context);
+        });
+    }
+
     // Draw tombstones and doors under character
     renderables.forEach(item => {
         if (item.type === "tombstone") {
@@ -1042,7 +1099,8 @@ function render() {
 
     // Draw all main objects in sorted order
     renderables.forEach(item => {
-        if (item.type === "plant") {
+        // Do not render plants in the stats space
+        if (item.type === "plant" && space != "stats") {
             const plant = item.obj;
             context.save();
             context.globalAlpha = 0.85;
@@ -1053,11 +1111,7 @@ function render() {
         }
     });
 
-    // Stats space: render charts instead of tombstones/plants/doors/character
-    if (space == "stats") {
-        pie.render(context);
-        bar.render(context);
-    }
+    
 
     // Set font, render and calculate size of white box behind text
     context.font = "20pt \"Jersey 10\"";
@@ -1149,9 +1203,7 @@ let shift = [0, 0];
 let characterSpeed = 300;
 let input = new Input();
 let plants; // Add plants variable
-let example = { "aaaaaaa": 1, "hello": 7, "cccccccccc": 3, "aaaaaaaa": 1, "helloa": 4, "cccccccccca": 3, "yo": 2};
-let pie = new PieChart("Likes Per Category", example, 200, 200, 80);
-let bar = new BarChart("Likes Per Category", example, 600, 200, 80);
+let charts = [];
 
 let images = new Resources([
     "../static/assets/character/back/b0.png",

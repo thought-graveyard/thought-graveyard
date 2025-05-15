@@ -282,11 +282,115 @@
             // Ensure that data is for global space
             await loadGlobalSpace();
             renderSearchResults(tombstoneData);
+
+            // Enum for tombstone_design names
+            const tombstone_designs = Object.freeze({
+                0: "Regular",
+                1: "Mushroom",
+                2: "Stump",
+                3: "Tree",
+                4: "Rose",
+                5: "Clover"
+            });
+
+            // Enum for emotion names
+            const emotions = Object.freeze({
+                "happy": "Happy",
+                "sad": "Sad",
+                "angry": "Angry",
+                "blank": "Blank"
+            });
+
+            let likes_per_category = {};
+            let likes_per_emotion = {};
+            let thoughts_per_category = {};
+            let thoughts_per_emotion = {};
+            let likes_vs_number_of_tombstones = {};
+            let max_likes = 0;
+            let max_liked = "";
+            let personal_max_likes = 0;
+            let personal_max_liked = "";
+
+            let personal_overview = [
+                "Number of Tombstones",
+                0,
+                "Number of Likes",
+                0,
+                "Most Liked Tombstone"
+            ];
+
+            let global_overview = [
+                "Number of Tombstones",
+                0,
+                "Number of Likes",
+                0,
+                "Most Liked Tombstone"
+            ];
+
+            // Group data for statistical visualisation
+            tombstoneData.forEach(thought => {
+                // Default values
+                likes_per_category[tombstone_designs[thought.tombstone]] ??= 0;
+                thoughts_per_category[tombstone_designs[thought.tombstone]] ??= 0;
+                likes_per_emotion[emotions[thought.emotions]] ??= 0;
+                thoughts_per_emotion[emotions[thought.emotions]] ??= 0;
+                
+                // Additional values
+                likes_per_category[tombstone_designs[thought.tombstone]] += thought.likes.length;
+                thoughts_per_category[tombstone_designs[thought.tombstone]] += 1;
+                likes_per_emotion[emotions[thought.emotions]] += thought.likes.length;
+                thoughts_per_emotion[emotions[thought.emotions]] += 1;
+
+                global_overview[1] += 1;
+                global_overview[3] += thought.likes.length;
+
+                if (thought.likes.length >= max_likes ) {
+                    max_likes = thought.likes.length;
+                    max_liked = thought.title;
+                }
+
+                if (thought.author == sessionData.user_id) {
+                    personal_overview[1] += 1;
+                    personal_overview[3] += thought.likes.length;
+
+                    if (thought.likes.length >= personal_max_likes) {
+                        personal_max_likes = thought.likes.length;
+                        personal_max_liked = thought.title;
+                    }
+                }
+            });
+
+            personal_overview.push(`"${personal_max_liked}" (${personal_max_likes})`);
+            global_overview.push(`"${max_liked}" (${max_likes})`);
+
+            // Create charts to be displayed in the stats space
+            charts = [
+                new PieChart("Likes Per Category", likes_per_category, 200, 200, 80),
+                new PieChart("Thoughts Per Category", thoughts_per_category, 500, 450, 80),
+                new BarChart("Likes Per Category", likes_per_category, 500, 200, 120),
+                new BarChart("Thoughts Per Category", thoughts_per_category, 200, 620, 120),
+
+                new PieChart("Likes Per Emotion", likes_per_emotion, 800, 200, 80),
+                new PieChart("Thoughts Per Emotion", thoughts_per_emotion, 1160, 500, 120),
+                new BarChart("Likes Per Emotion", likes_per_emotion, 1100, 200, 80),
+                new BarChart("Thoughts Per Emotion", thoughts_per_emotion, 800, 550, 80),
+
+                new OverviewChart("Personal Overview", personal_overview, 825, 740, 210, 170),
+                new OverviewChart("Global Overview", global_overview, 520, 740, 280, 170)
+            ];
         }
 
         function renderSearchResults(thoughts) {
+            // Enum for emotion names
+            const emotions = Object.freeze({
+                "😄": "happy",
+                "😢": "sad",
+                "😡": "angry",
+                "😶": "blank"
+            });
+
             const keyword = document.getElementById("search-keyword").value.toLowerCase();
-            const checkedEmotions = Array.from(document.querySelectorAll(".filter-emotion:checked")).map(cb => cb.value);
+            const checkedEmotions = Array.from(document.querySelectorAll(".filter-emotion:checked")).map(cb => emotions[cb.value]);
             
             // Filter search results by keyword and emotion
             const filtered = thoughts.filter(t => {

@@ -7,7 +7,7 @@
 
 
 {% block body %}
-    <div class="container stone">
+    <div class="container sand">
         <div class="card">
         <!-- Title session -->
         <div class="title">Registration</div>
@@ -60,9 +60,9 @@
                 </div>
                 <div id="msg" style="display: none;">
                     <h3>Password must contain the following:</h3>
-                    <p id="letter" class="invalid">A <b>lowercase</b> letter</p>
-                    <p id="capital" class="invalid">A <b>capital (uppercase)</b> letter</p>
-                    <p id="number" class="invalid">A <b>number</b></p>
+                    <p id="letter" class="invalid">1 <b>lowercase</b> letter</p>
+                    <p id="capital" class="invalid">1 <b>capital</b> letter</p>
+                    <p id="number" class="invalid">1 <b>number</b></p>
                     <p id="length" class="invalid">Minimum <b>8 characters</b></p>
                     <p id="match" class="invalid">Passwords must <b>match</b></p>
                 </div>
@@ -91,9 +91,7 @@
                     </div>
                 </div>
                 <!-- Submit button-->
-                <div class="button">
-                    <input type="submit" value="Register">
-                </div>
+                <button class="button" type="submit">Register</button>
             </form>
         </div>
         </div>

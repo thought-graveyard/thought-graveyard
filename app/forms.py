@@ -70,12 +70,12 @@ class ThoughtForm(FlaskForm):
     emotion = RadioField(
         "Emotion",
         choices = [
-            ("😄", "😄"),
-            ("😢", "😢"),
-            ("😡", "😡"),
-            ("😶", "😶")
+            ("happy", "😄"),
+            ("sad", "😢"),
+            ("angry", "😡"),
+            ("blank", "😶")
         ],
-        default = "😄"
+        default = "happy"
     )
 
     space = RadioField(

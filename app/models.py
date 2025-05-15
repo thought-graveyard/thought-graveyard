@@ -24,7 +24,7 @@ class Thought(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200))
     content = db.Column(db.Text)
-    emotions = db.Column(db.PickleType)
+    emotions = db.Column(db.Text)
     space = db.Column(db.String(10))
     author = db.Column(db.String(80))
     position = db.Column(db.JSON)
@@ -37,7 +37,7 @@ class Thought(db.Model):
             "id": self.id,
             "title": self.title,
             "content": self.content,
-            "emotions": self.emotions or [],
+            "emotions": self.emotions,
             "space": self.space,
             "author": self.author,
             "position": self.position,
