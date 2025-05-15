@@ -96,9 +96,27 @@ body, .main {
 
 .sidebar {
     width: 100px;
+    padding: 6px;
     flex: 0 0 200px;
     height: 100%;
     text-align: center;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    margin-bottom: 1em;
+    overflow-y: scroll;
+    height: calc(100vh - 320px);
+}
+
+ul li {
+    padding: 6px;
+    border: 1px solid #000;
+    background-color: inherit;
+    cursor: pointer;
+    margin-bottom: 6px;
 }
 
 canvas {
