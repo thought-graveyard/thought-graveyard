@@ -63,6 +63,9 @@ flask run
 
 ## Testing
 
+> Note: running these tests requires the databse to be cleared to ensure that the functionality can be tested correctly. 
+> In some cases, you may have to re-run `flask stamp head` and below to run the application normally after urnning these tests
+
 The project includes both unit tests and Selenium browser tests to ensure functionality works as expected.
 
 ### Running Tests
