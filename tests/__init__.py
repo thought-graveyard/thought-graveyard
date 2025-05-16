@@ -1,8 +1,6 @@
 import unittest
 import os
 import sys
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 
 # add app directory to python path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -24,7 +22,8 @@ class TestConfig:
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"  # use SQLite memory
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     WTF_CSRF_ENABLED = False  # inactivity CSRF for testing
-    SECRET_KEY = "Thoughtgraveyard"
+    SECRET_KEY = os.environ.get("SECRET_KEY")
+
 
 class BaseTestCase(unittest.TestCase):
     '''
@@ -68,7 +67,9 @@ class BaseTestCase(unittest.TestCase):
         - Pop the application context (app_context.pop)
         '''
         db.session.remove()
-        db.drop_all()
+        User.query.delete()
+        Thought.query.delete()
+        db.session.commit()
         self.app_context.pop()
 
     def create_test_users(self):

@@ -69,11 +69,13 @@ flask run
 
 ## Testing
 
-> Note: running these tests requires the databse to be cleared to ensure that the functionality can be tested correctly. 
-> In some cases, you may have to re-run `flask stamp head` and below to run the application normally after urnning these tests
+> Note: running these tests requires the databse to be cleared to ensure that the functionality can be tested correctly.
+> Do not run with a production database
 
 
 The project includes unit tests to ensure functionality works as expected.
+
+Ensure that the flask server is running when the tests are run, as this is a requirement for some of the tests.
 
 
 ### Running Tests
@@ -84,7 +86,12 @@ python -m unittest discover -s tests
 
 # Run model tests
 python -m unittest tests.test_models
+
+# Run router tests
 python -m unittest tests.test_router
+
+# Run selenium tests
+python -m unittest tests.test_selenium
 ```
 
 ## AI Usage Statement

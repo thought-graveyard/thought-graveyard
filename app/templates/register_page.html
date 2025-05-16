@@ -185,15 +185,5 @@
         confirmInput.onkeyup = function() {
             checkpswMatch();
         }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const registerForm = document.getElementById('registerForm');
-            
-            registerForm.addEventListener('submit', function(event){
-                if(registerForm.checkValidity()) {
-                    alert('Membership registration is complete! You will be redirected to the login page');
-                }
-            });
-        });
     </script>
 {% endblock %}
