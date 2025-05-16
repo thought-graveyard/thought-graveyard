@@ -60,13 +60,21 @@ flask db upgrade
 flask run
 ```
 
+## Security Features
+
+- **Secure password**: All user passwords are securely stored as salted hash using Werkzeug's security utility
+- **CSRF Protection**: All forms are protected from against cross-site request forgery attacks using the CSRF protection of Flask-WTF
+- **Environmental variables**: Sensitive information such as SECRET_KEY is stored in environment variables vi
+
 
 ## Testing
 
 > Note: running these tests requires the databse to be cleared to ensure that the functionality can be tested correctly. 
 > In some cases, you may have to re-run `flask stamp head` and below to run the application normally after urnning these tests
 
-The project includes both unit tests to ensure functionality works as expected.
+
+The project includes unit tests to ensure functionality works as expected.
+
 
 ### Running Tests
 
