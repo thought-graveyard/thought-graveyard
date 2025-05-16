@@ -54,7 +54,7 @@ echo "SECRET_KEY=\"ThoughtGraveYardXYZ@#456\"" > .env
 python3 -m venv virtualenv
 source ./virtualenv/bin/activate
 pip install -r requirements.txt
-flask stamp head
+flask db stamp head
 flask db migrate
 flask db upgrade
 flask run
