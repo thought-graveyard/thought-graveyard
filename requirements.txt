@@ -20,3 +20,4 @@ WTForms==3.2.1
 dnspython==2.7.0
 email_validator==2.2.0
 idna==3.10
+selenium==4.32.0
