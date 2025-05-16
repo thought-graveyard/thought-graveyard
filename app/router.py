@@ -43,7 +43,8 @@ def login():
         else:
             #fail to log-in
             flash("Your ID and Password are incorrect")
-
+            return render_template('login_page.html', form=form)
+        
     elif session.get("user_id") == None:
         #request 'GET' then it would display log-in page
         return render_template('login_page.html', form=form)
