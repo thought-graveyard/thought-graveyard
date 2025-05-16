@@ -46,3 +46,19 @@ pip install -r requirements.txt
 flask db upgrade
 flask run
 ```
+
+
+## Testing
+
+The project includes both unit tests and Selenium browser tests to ensure functionality works as expected.
+
+### Running Tests
+
+```
+To run all tests:
+python -m unittest discover -s tests
+
+# Run model tests
+python -m unittest tests.test_models
+
+```
